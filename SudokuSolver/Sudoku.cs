@@ -8,9 +8,8 @@ namespace SudokuSolver
 {
     public class Sudoku
     {
-        public Sudoku() =>
-            Board = new int[0, 0];
-        
+        public Sudoku() => Board = new int[0, 0];
+
         public Sudoku(int[,] board, ISudokuSerializer serializer = null)
         {
             if (serializer != null)
@@ -18,7 +17,7 @@ namespace SudokuSolver
 
             Board = DeserializeBoard(board);
         }
-        
+
         public Sudoku(string board, ISudokuSerializer serializer = null)
         {
             if (serializer != null)
@@ -28,37 +27,22 @@ namespace SudokuSolver
         }
 
         public int[,] Board { get; }
-        public int[,] Solution =>
-            Solutions.FirstOrDefault();
+        public int[,] Solution => Solutions.FirstOrDefault();
         public IEnumerable<int[,]> Solutions { get; private set; } = Enumerable.Empty<int[,]>();
-
         public ISudokuSerializer Serializer { get; set; } = new SudokuSerializer();
-
-        public int[,] DeserializeBoard(string board) =>
-            Serializer.DeserializeBoard(board);
-        public int[,] DeserializeBoard(int[,] board) =>
-            Serializer.DeserializeBoard(board);
-        public string SerializeBoard() =>
-            Serializer.SerializeBoard(Board);
-        public string PrintableBoard() =>
-            Serializer.SerializePrintFormat(Board);
-
-        public string SerializedSolution() =>
-            SerializedSolutions().FirstOrDefault();
-        public IEnumerable<string> SerializedSolutions() =>
-            Solutions.Select(Serializer.SerializeBoard);
-
-        public string PrintableSolution() =>
-            PrintableSolutions().FirstOrDefault();
-        public IEnumerable<string> PrintableSolutions() =>
-            Solutions.Select(Serializer.SerializePrintFormat);
+        public int[,] DeserializeBoard(string board) => Serializer.DeserializeBoard(board);
+        public int[,] DeserializeBoard(int[,] board) => Serializer.DeserializeBoard(board);
+        public string SerializedBoard => Serializer.SerializeBoard(Board);
+        public string PrintableBoard => Serializer.SerializePrintFormat(Board);
+        public string SerializedSolution => SerializedSolutions.FirstOrDefault();
+        public IEnumerable<string> SerializedSolutions => Solutions.Select(Serializer.SerializeBoard);
+        public string PrintableSolution => PrintableSolutions.FirstOrDefault();
+        public IEnumerable<string> PrintableSolutions => Solutions.Select(Serializer.SerializePrintFormat);
 
         public void Solve(int maxSolutions)
         {
             var constraintMatrix = CreateConstraintMatrix(Board);
-            //cpu time: 23% -> 36%
             var toroidalLinkedList = new ToroidalLinkedList(constraintMatrix);
-            //cpu time: 75% -> 60%
             toroidalLinkedList.Solve(maxSolutions);
             Solutions = toroidalLinkedList.Solutions.Select(ParseNodeListSolution);
         }
@@ -94,7 +78,7 @@ namespace SudokuSolver
                         //add clues only if we have a blank, or when we have the correct clue
                         if (board[row, col] == SudokuConstants.BlankCellValue || board[row, col] == digit)
                         {
-                            //map each constraint to a unique value (offset + 0..cellCount-1)
+                            //map each constraint to a unique column value (offset + 0..cellCount-1)
                             var cellIndex = cellOffset + row * digitCount + col;
                             var rowIndex = rowOffset + row * digitCount + digit;
                             var colIndex = colOffset + col * digitCount + digit;
@@ -102,6 +86,7 @@ namespace SudokuSolver
                             var boxIndex = boxOffset + box * digitCount + digit;
 
                             //four constraints per row
+                            //with 9 digits the index is in base 9 here, ie row*9^2 + col*9^1 + digit*9^0
                             var candidateIndex = (row * digitCount * digitCount) + (col * digitCount) + digit;
 
                             constraintMatrix[candidateIndex, cellIndex] = true;
@@ -135,12 +120,8 @@ namespace SudokuSolver
             return board;
         }
 
-        //todo: perhaps not the best of checks :-)
-        public bool IsSolved =>
-            Solutions.Count() == 1;
-        public bool IsUnsolved =>
-            Solutions.Count() == 0;
-        public bool IsSolvedAmbiguous =>
-            Solutions.Count() >= 2;
+        public bool IsUnsolved => Solutions.Count() == 0;
+        public bool IsSolved => Solutions.Count() == 1;
+        public bool IsSolvedAmbiguous => Solutions.Count() >= 2;
     }
 }

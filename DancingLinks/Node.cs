@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace DancingLinks
@@ -8,11 +9,7 @@ namespace DancingLinks
     //used for doubly linked list that is circular in two dimensions (up/down and left/right)
     //should perhaps be split into Root, Header, Data; inheriting from some Node
 
-    //todo: make classes
-    //todo: class vs struct performance
-    //todo: benchmark properties vs fields
-    //todo: benchmark both 9x9 and 16x16
-    //todo: benchmark with fewer loop methods
+    //random thoughts:
     //class BaseNode {
     //    //left, right
     //}
@@ -64,6 +61,7 @@ namespace DancingLinks
             ColId = col;
         }
 
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]    //todo: benchmark
         public void AddHorizontalNode(Node node)
         {
             node.Right = this;
@@ -72,6 +70,7 @@ namespace DancingLinks
             this.Left = node;
         }
 
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddVerticalDataNode(Node node)
         {
             node.Down = this;
@@ -83,6 +82,7 @@ namespace DancingLinks
             Count++;
         }
 
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void CoverColumnAndRows()
         {
             CoverHorizontalNode();
@@ -90,6 +90,7 @@ namespace DancingLinks
                 data.CoverRow();
         }
 
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void UncoverColumnAndRows()
         {
             for (var data = this.Up; data != this; data = data.Up)
@@ -97,18 +98,21 @@ namespace DancingLinks
             UncoverHorizontalNode();
         }
 
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void CoverHorizontalNode()
         {
             this.Right.Left = this.Left;
             this.Left.Right = this.Right;
         }
 
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void UncoverHorizontalNode()
         {
             this.Right.Left = this;
             this.Left.Right = this;
         }
 
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void CoverVerticalNode()
         {
             this.Down.Up = this.Up;
@@ -117,6 +121,7 @@ namespace DancingLinks
             ColumnHeader.Count--;
         }
 
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void UncoverVerticalNode()
         {
             this.Down.Up = this;
@@ -125,12 +130,14 @@ namespace DancingLinks
             ColumnHeader.Count++;
         }
 
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void CoverRow()
         {
             for (var data = this.Right; data != this; data = data.Right)
                 data.CoverVerticalNode();
         }
 
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void UncoverRow()
         {
             for (var data = this.Left; data != this; data = data.Left)
