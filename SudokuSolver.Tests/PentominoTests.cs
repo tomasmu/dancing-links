@@ -27,7 +27,10 @@ namespace SudokuSolver.Tests
 ..";
             var I = @"
 ..";
-            var pentomino = new Pentomino(new[] { B, I }, 2, 3);
+
+            var rows = 2;
+            var cols = 3;
+            var pentomino = new Pentomino(new[] { B, I }, rows, cols);
             var result = pentomino.GetConstraintList().ToStringThing();
 
             Assert.Equal(expected, result);
@@ -142,19 +145,84 @@ namespace SudokuSolver.Tests
 
 
 ....";
+            //        var date = @"
+            //.
+            //  .
+
+
+
+
+            //   .";
             var date = @"
-    .
-      .
 
-
-
-
-       .";
+.. .";
 
             var rows = 8;
             var cols = 7;
-            var pieceList = new[] { blocked, date, C, Z, Zlong, S, L4, L3, Lbig, d, I, T };
-            var blockedList = new[] { blocked, date };
+            var pieceList = new string[] { C, Z, Zlong, S, L4, L3, Lbig, d, I, T };
+            var blockedList = new string[] { blocked, date };
+            var pentomino = new Pentomino(
+                pieceList,
+                rows,
+                cols,
+                blockedList);
+            //var pentomino = new Pentomino(new[] { B, B, B, B, B, B, B, B, B }, 6, 6);
+            var result = pentomino.GetConstraintList().ToStringThing();
+
+            pentomino.Solve(10);
+            var solutions = pentomino.Solutions.ToList();
+
+            var sb = new StringBuilder();
+            var board = new int[rows, cols];
+            var count = 0;
+            foreach (var solution in solutions)
+            {
+                foreach (var (pieceId, coordinates) in solution)
+                {
+                    foreach (var (row, col) in coordinates)
+                    {
+                        board[row, col] = pieceId;
+                    }
+                }
+
+                for (int row = 0; row < rows; row++)
+                {
+                    for (int col = 0; col < cols; col++)
+                    {
+                        if (col != 0)
+                            sb.Append(" ");
+                        sb.Append(GetChar(board[row, col]));
+                    }
+
+                    sb.AppendLine();
+         
+                }
+                sb.AppendLine("--- " + ++count);
+            }
+
+            Debug.WriteLine(sb.ToString());
+
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void Testtest()
+        {
+            var expected = Pentomino.TestConstraintMatrix().ToStringThing();
+            var B = @"
+.
+...";
+            var single = @"
+.";
+
+            var blocked = @"
+   
+ .";
+            var rows = 2;
+            var cols = 3;
+            var pieceList = new[] { B, single };
+            var blockedList = new[] { blocked };
+            //var blockedList = new[] { blocked, date };
             var pentomino = new Pentomino(
                 pieceList,
                 rows,

@@ -29,6 +29,27 @@ namespace Pentominoes
             return matrix;
         }
 
+        public static bool[][] ToRectangleMatrixBool(this string stringLiteral)
+        {
+            static bool FirstRowNotEmpty(string str, int index) => index != 0 || str.Length > 0;
+
+            var stringRows = stringLiteral
+                .Split(Environment.NewLine)
+                .Where(FirstRowNotEmpty);
+            var maxColumnLength = stringRows.Max(str => str.Length);
+
+            bool MapCharToBool(char chr) => chr == '.' ? true : false;
+
+            var matrix = stringRows
+                .Select(str => str
+                    .PadRight(maxColumnLength, ' ')
+                    .Select(MapCharToBool)
+                    .ToArray())
+                .ToArray();
+
+            return matrix;
+        }
+
         public static string ToStringThing(this int[][] matrix, string delimiter = " ")
         {
             var sb = new StringBuilder();

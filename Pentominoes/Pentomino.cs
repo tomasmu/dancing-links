@@ -8,18 +8,24 @@ namespace Pentominoes
     public class Pentomino
     {
         public Pentomino(IEnumerable<string> pieces, int boardRows, int boardColumns, IEnumerable<string> blocked = null) {
-            pieceNames = pieces.ToList();
+            pieceList = pieces.ToList();
             rows = boardRows;
             columns = boardColumns;
-            numberOfPieces = pieceNames.Count();
+            numberOfPieces = pieceList.Count();
+            blockedList = blocked?.ToList();
+            numberOfBlocked = blocked?.Count() ?? 0;
+            totalNumberOfPieces = numberOfPieces + numberOfBlocked;
         }
 
         private int[,] Grid { get; set; }
-        private readonly List<string> pieceNames;
+        private readonly List<string> pieceList;
         private const int FORBIDDEN_VALUE = -1;
         private readonly int rows = 2;
         private readonly int columns = 3;
         private readonly int numberOfPieces = 2;
+        private readonly int numberOfBlocked = 0;
+        private readonly int totalNumberOfPieces;
+        private readonly List<string> blockedList;
 
         public IEnumerable<IEnumerable<(int pieceId, IEnumerable<(int row, int col)> coordinates)>>
             Solutions { get; private set; }
@@ -34,31 +40,33 @@ namespace Pentominoes
                 .Select(ParseNodeListSolution);
         }
 
-        public bool[,] GetConstraintList() {
+        public bool[,] GetConstraintList()
+        {
             var constraintList = new List<bool[]>();
-            var constraintColumns = numberOfPieces + rows * columns;
-            
-            for(var pieceIndex = 0; pieceIndex<numberOfPieces; pieceIndex++)
+            var constraintColumns = totalNumberOfPieces + rows * columns;
+
+            for (var pieceIndex = 0; pieceIndex<numberOfPieces; pieceIndex++)
             {
-                var possibleVariations = GetPossibleVariations(pieceNames[pieceIndex]);
-                foreach(var possibleVariation in possibleVariations) {
+                var possibleVariations = GetPossibleVariations(pieceList[pieceIndex]);
+                foreach (var possibleVariation in possibleVariations) {
                     var size = GetSize(possibleVariation);
-                    for(var row = 0; row <= rows - size.rows; row++)
+                    for (var row = 0; row <= rows - size.rows; row++)
                     {
-                        for(var col = 0; col <= columns - size.columns; col++)
+                        for (var col = 0; col <= columns - size.columns; col++)
                         {
                             if (CanPlacePiece(row, col, possibleVariation, null))
                             {
                                 var constraintRow = new bool[constraintColumns];
                                 constraintRow[pieceIndex] = true;
-                                for (int pieceRow = 0; pieceRow < size.rows; pieceRow++)
+                                
+                                for (var pieceRow = 0; pieceRow < size.rows; pieceRow++)
                                 {
-                                    for (int pieceCol = 0; pieceCol < size.columns; pieceCol++)
+                                    for (var pieceCol = 0; pieceCol < size.columns; pieceCol++)
                                     {
                                         if (possibleVariation[pieceRow, pieceCol])
                                         {
                                             var boardIndex = (row + pieceRow) * columns + (col + pieceCol);
-                                            var constraintIndex = numberOfPieces + boardIndex;
+                                            var constraintIndex = totalNumberOfPieces + boardIndex;
                                             constraintRow[constraintIndex] = true;
                                         }
                                     }
@@ -69,6 +77,29 @@ namespace Pentominoes
                         }
                     }
                 }
+            }
+
+            for (var blockedIndex = 0; blockedIndex < numberOfBlocked; blockedIndex++)
+            {
+                var pieceIndex = numberOfPieces + blockedIndex;
+                var blocked = blockedList[blockedIndex].ToRectangleMatrixBool();
+                var (rows, cols) = (blocked.Length, blocked[0].Length);
+                var constraintRow = new bool[constraintColumns];
+                constraintRow[pieceIndex] = true;
+                for (int row = 0; row < rows; row++)
+                {
+                    for (int col = 0; col < cols; col++)
+                    {
+                        if (blocked[row][col])
+                        {
+                            var boardIndex = row * columns + col;
+                            var constraintIndex = totalNumberOfPieces + boardIndex;
+                            constraintRow[constraintIndex] = true;
+                        }
+                    }
+                }
+
+                constraintList.Add(constraintRow);
             }
 
             var constraintMatrix = new bool[constraintList.Count(), constraintColumns];
@@ -83,8 +114,9 @@ namespace Pentominoes
             return constraintMatrix;
         }
 
-        private bool CanPlacePiece(int row, int col, bool[,] possibleVariation, int[] forbiddenIndices = null)
+        private bool CanPlacePiece(int row, int col, bool[,] possibleVariation, int[] blocked = null)
         {
+            //todo: future optimisation
             return true;
         }
 
@@ -119,8 +151,8 @@ namespace Pentominoes
             var boardRows = solutionRows
                 .Select(row =>
                 {
-                    var piece = row.Take(numberOfPieces);
-                    var boardRowWithPiece = row.Skip(numberOfPieces);
+                    var piece = row.Take(totalNumberOfPieces);
+                    var boardRowWithPiece = row.Skip(totalNumberOfPieces);
 
                     var pieceId = piece
                         .ToList()
