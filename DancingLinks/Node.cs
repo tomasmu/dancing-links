@@ -48,15 +48,19 @@ namespace DancingLinks
 
         public int RowId { get; set; }
         public int ColId { get; set; }
+        
         public int Count { get; set; }
 
-        public Node(int row, int col)
+        public Node()
         {
             Left = this;
             Right = this;
             Up = this;
             Down = this;
+        }
 
+        public Node(int row, int col) : this()
+        {
             RowId = row;
             ColId = col;
         }
