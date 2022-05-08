@@ -78,10 +78,9 @@ namespace Pentominoes
             stopwatch.Stop();
         }
 
-        //todo: bool[][]
         //todo: create constraints with holes instead of treating them as blocking pieces
         //this reduces the number of columns
-        public bool[,] CreateConstraintMatrix()
+        public bool[][] CreateConstraintMatrix()
         {
             //create a constraint list since we don't know the number of constraints yet
             var constraintList = new List<bool[]>();
@@ -131,15 +130,8 @@ namespace Pentominoes
             }
 
             //create constraintMatrix array from list
-            var constraintMatrix = new bool[constraintList.Count, _constraintColumnCount];
-            for (var row = 0; row < constraintList.Count; row++)
-            {
-                for (var col = 0; col < _constraintColumnCount; col++)
-                {
-                    constraintMatrix[row, col] = constraintList[row][col];
-                }
-            }
 
+            var constraintMatrix = constraintList.ToArray();
             return constraintMatrix;
         }
 
@@ -212,7 +204,7 @@ namespace Pentominoes
             ParseNodeListSolution(List<Node> nodes)
         {
             var solutionRows = nodes
-                .Select(node => ConstraintMatrix.GetRow(node.RowId));
+                .Select(node => ConstraintMatrix[node.RowId]);
 
             var boardRows = solutionRows
                 .Select(row =>
@@ -236,118 +228,6 @@ namespace Pentominoes
             return boardRows;
         }
 
-        public bool[,] ConstraintMatrix { get; set; }
-
-        public static bool[,] TestConstraintMatrix()
-        {
-            //pentominoes:
-            //måste man dra av 4 och försöka trixa bort dem om det är hål?
-            //kan man inte bara ha 8*8 och aldrig placera ut nåt på hålen?
-            //dvs
-            //const int COLUMNS = NUMBER_OF_PENTOMINOES + BOARD_LENGTH - 4;
-            //eller
-            //const int COLUMNS = NUMBER_OF_PENTOMINOES + BOARD_LENGTH;
-
-            var numberOfPieces = 2;
-            //board dimensions
-            var rows = 2;
-            var columns = 3;
-
-            var boardLength = rows * columns;
-
-            var ROWS = 2+(3+4);     //rows är egentligen okänd här men exakt antal krävs, list.Count() innan man skapar constraint matrixen?
-            var COLUMNS = numberOfPieces + boardLength;
-            //ROWS upper bound: 8*8 * 12 * 4 = 3072; //starta i 8x8-griden, 12 bitar, 4 rotationer (inga speglingar)
-            //1568 är antalet enligt https://arxiv.org/pdf/cs/0011047.pdf
-            var constraintMatrix = new bool[ROWS, COLUMNS];
-
-            int rowNumber;
-            int pieceIndex;
-
-            //set piece
-            //on a 2x3 board we have..
-
-            //B: square piece
-            //B B x //indices 3*row + col
-            //B B x
-            rowNumber = 0;
-            pieceIndex = 0;
-            constraintMatrix[rowNumber, pieceIndex] = true;
-            constraintMatrix[rowNumber, numberOfPieces + columns * 0 + 0] = true;
-            constraintMatrix[rowNumber, numberOfPieces + columns * 0 + 1] = true;
-            constraintMatrix[rowNumber, numberOfPieces + columns * 1 + 0] = true;
-            constraintMatrix[rowNumber, numberOfPieces + columns * 1 + 1] = true;
-
-            //x B B
-            //x B B
-            rowNumber = 1;
-            pieceIndex = 0;
-            constraintMatrix[rowNumber, pieceIndex] = true;
-            constraintMatrix[rowNumber, numberOfPieces + columns * 0 + 1] = true;
-            constraintMatrix[rowNumber, numberOfPieces + columns * 0 + 2] = true;
-            constraintMatrix[rowNumber, numberOfPieces + columns * 1 + 1] = true;
-            constraintMatrix[rowNumber, numberOfPieces + columns * 1 + 2] = true;
-
-            //I: I piece
-            //vertical
-            //I x x
-            //I x x
-            rowNumber = 2;
-            pieceIndex = 1;
-            constraintMatrix[rowNumber, pieceIndex] = true;
-            constraintMatrix[rowNumber, numberOfPieces + columns * 0 + 0] = true;
-            constraintMatrix[rowNumber, numberOfPieces + columns * 1 + 0] = true;
-
-            //x I x
-            //x I x
-            rowNumber = 3;
-            pieceIndex = 1;
-            constraintMatrix[rowNumber, pieceIndex] = true;
-            constraintMatrix[rowNumber, numberOfPieces + columns * 0 + 1] = true;
-            constraintMatrix[rowNumber, numberOfPieces + columns * 1 + 1] = true;
-
-            //x x I
-            //x x I
-            rowNumber = 4;
-            pieceIndex = 1;
-            constraintMatrix[rowNumber, pieceIndex] = true;
-            constraintMatrix[rowNumber, numberOfPieces + columns * 0 + 2] = true;
-            constraintMatrix[rowNumber, numberOfPieces + columns * 1 + 2] = true;
-
-            //horizontal
-            //I I x
-            //x x x
-            rowNumber = 5;
-            pieceIndex = 1;
-            constraintMatrix[rowNumber, pieceIndex] = true;
-            constraintMatrix[rowNumber, numberOfPieces + columns * 0 + 0] = true;
-            constraintMatrix[rowNumber, numberOfPieces + columns * 0 + 1] = true;
-
-            //x I I
-            //x x x
-            rowNumber = 6;
-            pieceIndex = 1;
-            constraintMatrix[rowNumber, pieceIndex] = true;
-            constraintMatrix[rowNumber, numberOfPieces + columns * 0 + 1] = true;
-            constraintMatrix[rowNumber, numberOfPieces + columns * 0 + 2] = true;
-
-            //x x x
-            //I I x
-            rowNumber = 7;
-            pieceIndex = 1;
-            constraintMatrix[rowNumber, pieceIndex] = true;
-            constraintMatrix[rowNumber, numberOfPieces + columns * 1 + 0] = true;
-            constraintMatrix[rowNumber, numberOfPieces + columns * 1 + 1] = true;
-
-            //x x x
-            //x I I
-            rowNumber = 8;
-            pieceIndex = 1;
-            constraintMatrix[rowNumber, pieceIndex] = true;
-            constraintMatrix[rowNumber, numberOfPieces + columns * 1 + 1] = true;
-            constraintMatrix[rowNumber, numberOfPieces + columns * 1 + 2] = true;
-
-            return constraintMatrix;
-        }
+        public bool[][] ConstraintMatrix { get; set; }
     }
 }

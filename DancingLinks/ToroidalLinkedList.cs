@@ -12,6 +12,11 @@ namespace DancingLinks
             columnRoot = CreateToroidalLinkedList(constraintMatrix);
         }
 
+        public ToroidalLinkedList(bool[][] constraintMatrix)
+        {
+            columnRoot = CreateToroidalLinkedList(constraintMatrix);
+        }
+
         private Node CreateToroidalLinkedList(bool[,] constraintMatrix)
         {
             //create column root
@@ -57,7 +62,7 @@ namespace DancingLinks
             var colRoot = new Node(NodeConstants.ROW_HEADER, NodeConstants.COL_HEADER);
 
             //create column header row
-            var colLength = constraintMatrix.GetLength(1);
+            var colLength = constraintMatrix[0].Length;
             for (var col = 0; col < colLength; col++)
             {
                 var colHead = new Node(NodeConstants.ROW_HEADER, col);
