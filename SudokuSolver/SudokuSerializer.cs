@@ -14,8 +14,8 @@ namespace SudokuSolver
             var rowLength = board.GetLength(0);
             var colLength = board.GetLength(1);
             var boardOffset = new int[rowLength, colLength];
-            for (int row = 0; row < rowLength; row++)
-                for (int col = 0; col < colLength; col++)
+            for (var row = 0; row < rowLength; row++)
+                for (var col = 0; col < colLength; col++)
                     boardOffset[row, col] = board[row, col] + Offset;
 
             return boardOffset;
@@ -36,9 +36,9 @@ namespace SudokuSolver
             }
 
             var result = new int[rowLength, colLength];
-            for (int row = 0; row < rowLength; row++)
+            for (var row = 0; row < rowLength; row++)
             {
-                for (int col = 0; col < colLength; col++)
+                for (var col = 0; col < colLength; col++)
                 {
                     int stringIndex = row * rowLength + col;
                     result[row, col] = CharToCellValue(board[stringIndex]);
@@ -53,9 +53,9 @@ namespace SudokuSolver
             var result = new StringBuilder();
             var rowLength = board.GetLength(0);
             var colLength = board.GetLength(1);
-            for (int row = 0; row < rowLength; row++)
+            for (var row = 0; row < rowLength; row++)
             {
-                for (int col = 0; col < colLength; col++)
+                for (var col = 0; col < colLength; col++)
                 {
                     var chr = CellValueToSerializeChar(board[row, col]);
                     result.Append(chr);
@@ -76,12 +76,12 @@ namespace SudokuSolver
             var line = new string('-', charWidth);
 
             var result = new StringBuilder();
-            for (int row = 0; row < rowLength; row++)
+            for (var row = 0; row < rowLength; row++)
             {
                 if (row % boxLength == 0)
                     result.AppendLine(line);
 
-                for (int col = 0; col < colLength; col++)
+                for (var col = 0; col < colLength; col++)
                 {
                     if (col % boxLength == 0)
                         result.Append("| ");

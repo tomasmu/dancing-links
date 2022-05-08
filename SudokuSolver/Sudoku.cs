@@ -107,7 +107,7 @@ namespace SudokuSolver
             int dimension = (int)Math.Sqrt(cellCount);
 
             var board = new int[dimension, dimension];
-            for (int i = 0; i < cellCount; i++)
+            for (var i = 0; i < cellCount; i++)
             {
                 int rowId = nodes[i].RowId;
                 int row = rowId / (dimension * dimension);
