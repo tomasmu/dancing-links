@@ -14,13 +14,12 @@ namespace DancingLinks
 
         private Node CreateToroidalLinkedList(bool[,] constraintMatrix)
         {
-            //todo: rethink everything maybe
             //create column root
             var colRoot = new Node(NodeConstants.ROW_HEADER, NodeConstants.COL_HEADER);
 
             //create column header row
             var colLength = constraintMatrix.GetLength(1);
-            for (int col = 0; col < colLength; col++)
+            for (var col = 0; col < colLength; col++)
             {
                 var colHead = new Node(NodeConstants.ROW_HEADER, col);
                 colRoot.AddHorizontalNode(colHead);
@@ -28,7 +27,7 @@ namespace DancingLinks
 
             //create data node rows based on constraint matrix
             var rowLength = constraintMatrix.GetLength(0);
-            for (int row = 0; row < rowLength; row++)
+            for (var row = 0; row < rowLength; row++)
             {
                 //pretend first existing dataNode on each row is a row header, so we can append nodes horizontally
                 Node dataHead = null;
@@ -37,6 +36,45 @@ namespace DancingLinks
                 {
                     //create data node if constraint matrix says so
                     if (constraintMatrix[row, colHead.ColId])
+                    {
+                        var data = new Node(row, colHead.ColId);
+                        if (dataHead == null)
+                            dataHead = data;
+                        else
+                            dataHead.AddHorizontalNode(data);
+
+                        colHead.AddVerticalDataNode(data);
+                    }
+                }
+            }
+
+            return colRoot;
+        }
+
+        private Node CreateToroidalLinkedList(bool[][] constraintMatrix)
+        {
+            //create column root
+            var colRoot = new Node(NodeConstants.ROW_HEADER, NodeConstants.COL_HEADER);
+
+            //create column header row
+            var colLength = constraintMatrix.GetLength(1);
+            for (var col = 0; col < colLength; col++)
+            {
+                var colHead = new Node(NodeConstants.ROW_HEADER, col);
+                colRoot.AddHorizontalNode(colHead);
+            }
+
+            //create data node rows based on constraint matrix
+            var rowLength = constraintMatrix.GetLength(0);
+            for (var row = 0; row < rowLength; row++)
+            {
+                //pretend first existing dataNode on each row is a row header, so we can append nodes horizontally
+                Node dataHead = null;
+                //create data nodes rowwise
+                for (var colHead = colRoot.Right; colHead != colRoot; colHead = colHead.Right)
+                {
+                    //create data node if constraint matrix says so
+                    if (constraintMatrix[row][colHead.ColId])
                     {
                         var data = new Node(row, colHead.ColId);
                         if (dataHead == null)
@@ -74,7 +112,7 @@ namespace DancingLinks
                 return;
             }
 
-            var colHead = GetColumnWithFewestRows();    //todo: might need optimization
+            var colHead = GetColumnWithFewestRows();
             //if we have columns without data rows it's unsolvable
             if (colHead.Count == 0)
                 return;
@@ -113,7 +151,12 @@ namespace DancingLinks
 
         private Node GetColumnWithFewestRows()
         {
-            //todo: columnRoot to keep track of min column?
+            //todo:
+            //needs profiling/benchmark first!
+            //if i remember correctly, this loop runs a lot timewise (only in debug?)
+            //it is also crucial for minimizing solving time (random column is very slow)
+            //can columnRoot keep track of min column so we get O(1) retrieval instead of O(N)?
+            //maybe with a stack on every column hide, so we can backtrack, etc
             var min = columnRoot.Right;
             for (var colHead = min.Right; min.Count > 0 && colHead != columnRoot; colHead = colHead.Right)
             {

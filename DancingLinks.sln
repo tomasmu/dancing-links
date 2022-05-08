@@ -5,13 +5,15 @@ VisualStudioVersion = 16.0.30104.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DancingLinks", "DancingLinks\DancingLinks.csproj", "{061F6F8C-C9DF-4FD1-893B-AB07D895F38A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp", "ConsoleApp\ConsoleApp.csproj", "{B35CDDD3-A829-4414-B13B-7AC963CF4EF7}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SudokuSolver", "SudokuSolver\SudokuSolver.csproj", "{59072514-CFE2-4048-A4B5-CB814AA29314}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SudokuSolver.Tests", "SudokuSolver.Tests\SudokuSolver.Tests.csproj", "{599AC5E0-2D3B-41DA-B467-04C8A756A4E1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pentominoes", "Pentominoes\Pentominoes.csproj", "{A5D64BF6-2EF1-4CE5-8F2D-05EEE7018DAF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pentominoes", "Pentominoes\Pentominoes.csproj", "{A5D64BF6-2EF1-4CE5-8F2D-05EEE7018DAF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pentominoes.Tests", "Pentominoes.Tests\Pentominoes.Tests.csproj", "{1F0B320C-557D-4FE1-8762-B549664F2005}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp", "ConsoleApp\ConsoleApp.csproj", "{F7CEC222-DE4A-488F-9D6A-752A1A42D733}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +25,6 @@ Global
 		{061F6F8C-C9DF-4FD1-893B-AB07D895F38A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{061F6F8C-C9DF-4FD1-893B-AB07D895F38A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{061F6F8C-C9DF-4FD1-893B-AB07D895F38A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B35CDDD3-A829-4414-B13B-7AC963CF4EF7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B35CDDD3-A829-4414-B13B-7AC963CF4EF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B35CDDD3-A829-4414-B13B-7AC963CF4EF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B35CDDD3-A829-4414-B13B-7AC963CF4EF7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{59072514-CFE2-4048-A4B5-CB814AA29314}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{59072514-CFE2-4048-A4B5-CB814AA29314}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{59072514-CFE2-4048-A4B5-CB814AA29314}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -39,6 +37,14 @@ Global
 		{A5D64BF6-2EF1-4CE5-8F2D-05EEE7018DAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A5D64BF6-2EF1-4CE5-8F2D-05EEE7018DAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A5D64BF6-2EF1-4CE5-8F2D-05EEE7018DAF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F0B320C-557D-4FE1-8762-B549664F2005}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F0B320C-557D-4FE1-8762-B549664F2005}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F0B320C-557D-4FE1-8762-B549664F2005}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F0B320C-557D-4FE1-8762-B549664F2005}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7CEC222-DE4A-488F-9D6A-752A1A42D733}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7CEC222-DE4A-488F-9D6A-752A1A42D733}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7CEC222-DE4A-488F-9D6A-752A1A42D733}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7CEC222-DE4A-488F-9D6A-752A1A42D733}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
