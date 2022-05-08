@@ -5,4 +5,5 @@ https://arxiv.org/pdf/cs/0011047.pdf
 
 Implemented solvers:
 * Sudoku
+* Polyomino tiling
 * todo: more!
