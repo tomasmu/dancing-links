@@ -11,31 +11,30 @@ namespace Pentominoes
         public Pentomino(
             int boardRows,
             int boardColumns,
-            IEnumerable<string> pieces,
-            IEnumerable<string> blocked = null)
+            bool[][][] pieces,
+            bool[][][] blocked = null)
         {
-            _pieceList = pieces.ToList();
+            _pieceList = pieces;
             _rows = boardRows;
             _cols = boardColumns;
-            _numberOfPieces = _pieceList.Count;
-            _blockedList = blocked?.ToList();
+            _numberOfPieces = _pieceList.Length;
+            _blockedList = blocked;
             _numberOfBlocked = blocked?.Count() ?? 0;
             _totalNumberOfPieces = _numberOfPieces + _numberOfBlocked;
-            _constraintColumnCount = _totalNumberOfPieces + _rows * _cols;
+            _constraintCount = _totalNumberOfPieces + _rows * _cols;
             _blockedGrid = CreateBlockedGrid(_rows, _cols, _blockedList);
         }
 
         public char[] ActiveCellCharacters { get; set; } = new[] { 'o' };
 
-        private bool[,] CreateBlockedGrid(int rows, int cols, List<string> blockedList)
+        private bool[,] CreateBlockedGrid(int rows, int cols, bool[][][] blockedList)
         {
             var blockedGrid = new bool[rows, cols];
             if (blockedList == null)
                 return blockedGrid;
 
-            foreach (var blockedString in blockedList)
+            foreach (var blocked in blockedList)
             {
-                var blocked = blockedString.ToRectangleMatrix(ActiveCellCharacters);
                 for (var row = 0; row < rows; row++)
                 {
                     for (var col = 0; col < cols; col++)
@@ -49,15 +48,15 @@ namespace Pentominoes
             return blockedGrid;
         }
 
-        private readonly List<string> _pieceList;
+        private readonly bool[][][] _pieceList;
         private readonly int _rows;
         private readonly int _cols;
         private readonly int _numberOfPieces;
         private readonly int _numberOfBlocked;
         private readonly int _totalNumberOfPieces;
-        private readonly int _constraintColumnCount;
+        private readonly int _constraintCount;
         private readonly bool[,] _blockedGrid;
-        private readonly List<string> _blockedList;
+        private readonly bool[][][] _blockedList;
 
         public readonly Stopwatch stopwatch = new();
 
@@ -88,7 +87,7 @@ namespace Pentominoes
             //add piece constraints with all piece rotations and positions
             for (var pieceIndex = 0; pieceIndex < _numberOfPieces; pieceIndex++)
             {
-                var pieceRotations = GetAllUniquePieceRotations(_pieceList[pieceIndex]);
+                var pieceRotations = _pieceList[pieceIndex].GetUniqueRotationsAndMirrors();
                 foreach (var piece in pieceRotations) {
                     var (pieceRows, pieceCols) = piece.GetSize();
                     for (var row = 0; row <= _rows - pieceRows; row++)
@@ -108,9 +107,9 @@ namespace Pentominoes
             for (var blockedIndex = 0; blockedIndex < _numberOfBlocked; blockedIndex++)
             {
                 var pieceIndex = _numberOfPieces + blockedIndex;
-                var blocked = _blockedList[blockedIndex].ToRectangleMatrix(ActiveCellCharacters);
+                var blocked = _blockedList[blockedIndex];
                 var (rows, cols) = blocked.GetSize();
-                var constraintRow = new bool[_constraintColumnCount];
+                var constraintRow = new bool[_constraintCount];
                 constraintRow[pieceIndex] = true;
 
                 for (var row = 0; row < rows; row++)
@@ -129,15 +128,13 @@ namespace Pentominoes
                 constraintList.Add(constraintRow);
             }
 
-            //create constraintMatrix array from list
-
             var constraintMatrix = constraintList.ToArray();
             return constraintMatrix;
         }
 
-        private bool[] CreateConstraintRow(int pieceIndex, bool[,] piece, int row, int col, int pieceRows, int pieceCols)
+        private bool[] CreateConstraintRow(int pieceIndex, bool[][] piece, int row, int col, int pieceRows, int pieceCols)
         {
-            var constraintRow = new bool[_constraintColumnCount];
+            var constraintRow = new bool[_constraintCount];
             constraintRow[pieceIndex] = true;
 
             for (var pieceRow = 0; pieceRow < pieceRows; pieceRow++)
@@ -147,7 +144,7 @@ namespace Pentominoes
                     var boardRow = row + pieceRow;
                     var boardCol = col + pieceCol;
 
-                    if (piece[pieceRow, pieceCol])
+                    if (piece[pieceRow][pieceCol])
                     {
                         if (_blockedGrid[boardRow, boardCol])
                             return null;
@@ -161,12 +158,6 @@ namespace Pentominoes
 
             return constraintRow;
         }
-
-        public bool[][,] GetAllUniquePieceRotations(string pieceLiteral) =>
-            pieceLiteral
-                .ToRectangleMatrix(ActiveCellCharacters)
-                .GetUniqueRotationsAndMirrors()
-                .ToArrayMatrixArray();
 
         private string ToSolutionString(IEnumerable<(int pieceId, IEnumerable<(int row, int col)> coordinates)> solution)
         {

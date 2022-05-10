@@ -1,4 +1,5 @@
-﻿using SudokuSolver;
+﻿using Pentominoes;
+using SudokuSolver;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -81,6 +82,159 @@ namespace ConsoleApp
             //            Console.WriteLine($"number of puzzles : {sudokus.Count()}");
             //            Console.WriteLine($"total milliseconds: {totalTime.Elapsed.TotalMilliseconds}");
             //            Console.ReadKey();
+
+            //solve all dates
+            var C = @"
+oo
+o
+oo";
+            var Z = @"
+ oo
+oo";
+            var Z_ = @"
+  oo
+ooo";
+            var S = @"
+ oo
+ o
+oo";
+            var L4 = @"
+o
+o
+o
+oo";
+            var L3 = @"
+o
+o
+oo";
+            var V = @"
+o
+o
+ooo";
+            var d = @"
+ o
+oo
+oo";
+            var I = @"oooo";
+            var T = @"
+ooo
+ o
+ o";
+            var blocked = @"
+------o
+------o
+-
+-
+-
+-
+-
+oooo".ToRectangleMatrix('o');
+            var (rows, cols) = (8, 7);
+
+            (int row, int col) monthIndex(int month) => month switch
+            {
+                >= 1 and <= 6 => (0, month - 1),
+                >= 7 and <= 12 => (1, month % cols),
+                _ => throw new ArgumentException($"{nameof(month)} errår"),
+            };
+            (int row, int col) dayIndex(int day) => day switch
+            {
+                >= 1 and <= 31 => (2 + (day - 1) / cols, (day - 1) % cols),
+                _ => throw new ArgumentException($"{nameof(day)} errår"),
+            };
+            (int row, int col) weekDayIndex(int weekDay) => weekDay switch
+            {
+                >= 1 and <= 3 => (6, weekDay + 3),
+                >= 4 and <= 6 => (7, weekDay),
+                7 => (6, 0 + 3),
+                _ => throw new ArgumentException($"{nameof(weekDay)} errår"),
+            };
+
+            var dates = new List<(string str, bool[][] arr)>();
+            for (var month = 1; month <= 12; month++)
+            {
+                for (var day = 1; day <= 31; day++)
+                {
+                    for (var weekDay = 1; weekDay <= 7; weekDay++)
+                    {
+                        var indices = new[]
+                        {
+                            monthIndex(month),
+                            dayIndex(day),
+                            weekDayIndex(weekDay),
+                        };
+                        var dateAndBlocked = new bool[rows][];
+                        for (int row = 0; row < rows; row++)
+                        {
+                            dateAndBlocked[row] = new bool[cols];
+                            for (int col = 0; col < cols; col++)
+                            {
+                                dateAndBlocked[row][col] = blocked[row][col];
+                            }
+                        }
+                        foreach (var (row, col) in indices)
+                        {
+                            dateAndBlocked[row][col] = true;
+                        }
+
+                        var str = $"{day}/{month} {weekDay}";
+                        dates.Add((str, dateAndBlocked));
+                    }
+                }
+            }
+
+            //var interesting = new[]
+            //{
+            //    "29/1 4",
+            //    "7/6 2",
+            //    "29/1 2",
+            //    "7/1 2",
+            //}.Reverse();
+            //dates = dates.Where(d => interesting.Contains(d.str)).ToList();
+
+            var results = new List<(string date, int solutions, long ms)>();
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            foreach (var (str, arr) in dates)
+            {
+                var test = arr.ToStringThing();
+                var pieceList = new string[] { C, Z, Z_, S, L4, L3, V, d, I, T }.ToRectangleMatrix('o');
+                var blockedList = new[] { arr };
+                var solver = new Pentomino(rows, cols, pieceList, blockedList);
+                solver.Solve(1);
+
+                results.Add((str, solver.Solutions.Count(), solver.stopwatch.ElapsedMilliseconds));
+            }
+
+            Console.WriteLine("elapsed ms: " + stopwatch.ElapsedMilliseconds);
+            Console.WriteLine("ms/solution: " + 31*12*7.0/stopwatch.ElapsedMilliseconds);
+
+            void print((string date, int solutions, long ms) item)
+            {
+                Console.WriteLine("d: " + item.date.PadLeft(2, ' ')
+                    + " | s:" + item.solutions.ToString().PadLeft(5, ' ')
+                    + " | ms: " + item.ms.ToString().PadLeft(5, ' '));
+            }
+            Console.WriteLine("--by solutions asc");
+            foreach (var item in results.OrderBy(s => s.solutions).Take(10))
+            {
+                print(item);
+            }
+            Console.WriteLine("--by solutions desc");
+            foreach (var item in results.OrderByDescending(s => s.solutions).Take(10))
+            {
+                print(item);
+            }
+            Console.WriteLine("--by time asc");
+            foreach (var item in results.OrderBy(s => s.ms).Take(10))
+            {
+                print(item);
+            }
+            Console.WriteLine("--by time desc");
+            foreach (var item in results.OrderByDescending(s => s.ms).Take(10))
+            {
+                print(item);
+            }
         }
     }
 }

@@ -25,8 +25,8 @@ o";
 ---
 -o-";
             var (rows, cols) = (2, 3);
-            var pieceList = new[] { L, single };
-            var blockedList = new[] { blocked };
+            var pieceList = new[] { L, single }.ToRectangleMatrix('o');
+            var blockedList = new[] { blocked }.ToRectangleMatrix('o');
             var solver = new Pentomino(
                 rows,
                 cols,
@@ -57,7 +57,7 @@ o";
 oo
 oo";
             var (rows, cols) = (6, 4);
-            var pieces = new[] { B, B, B, B, B, B };
+            var pieces = new[] { B, B, B, B, B, B }.ToRectangleMatrix('o');
             var solver = new Pentomino(rows, cols, pieces);
             static int factorial(int n, int acc = 1) => n <= 1 ? acc : factorial(n - 1, n * acc);
             var expectedNumberOfPermutations = factorial(6);
@@ -116,7 +116,7 @@ ooo
 -
 -
 oooo";
-            var temp = @"
+            var date = @"
 ---o---x
 -------x
 --------
@@ -126,8 +126,8 @@ o-------
 --------
 xxxxo---";
             var (rows, cols) = (8, 7);
-            var pieceList = new string[] { C, Z, Z_, S, L4, L3, V, d, I, T };
-            var blockedList = new string[] { blocked, temp };
+            var pieceList = new string[] { C, Z, Z_, S, L4, L3, V, d, I, T }.ToRectangleMatrix('o');
+            var blockedList = new string[] { blocked, date }.ToRectangleMatrix('o');
             var solver = new Pentomino(
                 rows,
                 cols,
@@ -221,14 +221,14 @@ oo
 --------
 --------
 --------";
-            var pentominoes = new[] { F, I, L, N, P, T, U, V, W, X, Y, Z };
-            var blocked = new[] { holes };
+            var pentominoes = new[] { F, I, L, N, P, T, U, V, W, X, Y, Z }.ToRectangleMatrix('o');
+            var blocked = new[] { holes }.ToRectangleMatrix('o');
             var (rows, cols) = (8, 8);
             var solver = new Pentomino(rows, cols, pentominoes, blocked);
             var correctNumberOfSolutions = 520;
 
             var correctNumberOfConstraints = 1568;
-            var myNumberOfConstraints = correctNumberOfConstraints + blocked.Length;
+            var myNumberOfConstraints = correctNumberOfConstraints + blocked.Count();
 
             //act
             solver.Solve(10_000);

@@ -62,7 +62,9 @@ namespace DancingLinks
             var colRoot = new Node(NodeConstants.ROW_HEADER, NodeConstants.COL_HEADER);
 
             //create column header row
-            var colLength = constraintMatrix[0].Length;
+            var colLength = constraintMatrix.Length == 0
+                ? 0
+                : constraintMatrix[0].Length;
             for (var col = 0; col < colLength; col++)
             {
                 var colHead = new Node(NodeConstants.ROW_HEADER, col);
@@ -70,7 +72,7 @@ namespace DancingLinks
             }
 
             //create data node rows based on constraint matrix
-            var rowLength = constraintMatrix.GetLength(0);
+            var rowLength = constraintMatrix.Length;
             for (var row = 0; row < rowLength; row++)
             {
                 //pretend first existing dataNode on each row is a row header, so we can append nodes horizontally

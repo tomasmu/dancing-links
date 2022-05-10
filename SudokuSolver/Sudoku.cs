@@ -41,14 +41,14 @@ namespace SudokuSolver
 
         public void Solve(int maxSolutions)
         {
-            var constraintMatrix = CreateConstraintMatrix(Board);
-            var toroidalLinkedList = new ToroidalLinkedList(constraintMatrix);
+            ConstraintMatrix = CreateConstraintMatrix(Board);
+            var toroidalLinkedList = new ToroidalLinkedList(ConstraintMatrix);
             toroidalLinkedList.Solve(maxSolutions);
             Solutions = toroidalLinkedList.Solutions.Select(ParseNodeListSolution);
         }
 
         //todo: datatype sudoku board
-        private bool[,] CreateConstraintMatrix(int[,] board)
+        private bool[][] CreateConstraintMatrix(int[,] board)
         {
             //most of these variables are for pedagogic reasons
             //e.g.: rowLength, colLength, and digitCount will always be equal; but makes the code easier to understand
@@ -68,13 +68,17 @@ namespace SudokuSolver
             var constraintColCount = sudokuConstraintCount * cellCount;
 
             //add constraints
-            var constraintMatrix = new bool[candidateRowCount, constraintColCount];
+            var constraintMatrix = new bool[candidateRowCount][];
             for (var row = 0; row < rowLength; row++)
             {
                 for (var col = 0; col < colLength; col++)
                 {
                     for (var digit = 0; digit < digitCount; digit++)
                     {
+                        //with 9 digits the index is in base 9 here, ie row*9^2 + col*9^1 + digit*9^0
+                        var candidateIndex = (row * digitCount * digitCount) + (col * digitCount) + digit;
+                        constraintMatrix[candidateIndex] = new bool[constraintColCount];
+
                         //add clues only if we have a blank, or when we have the correct clue
                         if (board[row, col] == SudokuConstants.BlankCellValue || board[row, col] == digit)
                         {
@@ -86,13 +90,10 @@ namespace SudokuSolver
                             var boxIndex = boxOffset + box * digitCount + digit;
 
                             //four constraints per row
-                            //with 9 digits the index is in base 9 here, ie row*9^2 + col*9^1 + digit*9^0
-                            var candidateIndex = (row * digitCount * digitCount) + (col * digitCount) + digit;
-
-                            constraintMatrix[candidateIndex, cellIndex] = true;
-                            constraintMatrix[candidateIndex, rowIndex]  = true;
-                            constraintMatrix[candidateIndex, colIndex]  = true;
-                            constraintMatrix[candidateIndex, boxIndex]  = true;
+                            constraintMatrix[candidateIndex][cellIndex] = true;
+                            constraintMatrix[candidateIndex][rowIndex]  = true;
+                            constraintMatrix[candidateIndex][colIndex]  = true;
+                            constraintMatrix[candidateIndex][boxIndex]  = true;
                         }
                     }
                 }
@@ -117,11 +118,18 @@ namespace SudokuSolver
                 board[row, col] = digit;
             }
 
+            //todo: parse constraint rows instead of parsing rowId
+            //can we make the constraint matrix smaller?
+            //var board = new int[Board.GetLength(0), Board.GetLength(1)];
+            //var constraintRows = nodes.Select(node => ConstraintMatrix[node.RowId]);
+
             return board;
         }
 
         public bool IsUnsolved => Solutions.Count() == 0;
         public bool IsSolved => Solutions.Count() == 1;
         public bool IsSolvedAmbiguous => Solutions.Count() >= 2;
+
+        public bool[][] ConstraintMatrix { get; set; }
     }
 }
