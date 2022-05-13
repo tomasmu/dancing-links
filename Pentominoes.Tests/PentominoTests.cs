@@ -21,56 +21,71 @@ o
 ooo";
             var single = @"
 o";
-            var blocked = @"
----
--o-";
-            var (rows, cols) = (2, 3);
             var pieceList = new[] { L, single }.ToRectangleMatrix('o');
-            var blockedList = new[] { blocked }.ToRectangleMatrix('o');
-            var solver = new Pentomino(
-                rows,
-                cols,
-                pieceList,
-                blockedList);
+            var board = @"
+...
+.o.".ToRectangleMatrix('o').ToIntMatrix();
 
+            var solver = new Pentomino(board, pieceList);
             var expectedSolutions = @"
-0 0 0
-1 2 0
+1 1 1
+2 0 1
 
-0 0 0
-0 2 1"[2..];
+1 1 1
+1 0 2"[2..];
+            var expectedConstraintMatrix = @"
+1 0 1 1 1 0 1
+1 0 1 1 1 1 0
+0 1 1 0 0 0 0
+0 1 0 1 0 0 0
+0 1 0 0 1 0 0
+0 1 0 0 0 1 0
+0 1 0 0 0 0 1"[2..];
 
             //act
             solver.Solve(3);
             var solutions = solver
                 .SolutionStrings()
                 .StringJoin(Environment.NewLine + Environment.NewLine);
+            var constraintMatrix = solver.ConstraintMatrix.ToStringThing();
 
             //dessert
             solutions.Should().Be(expectedSolutions);
+            constraintMatrix.Should().Be(expectedConstraintMatrix);
         }
 
         [Fact]
         public void SolveFindsAllPermutationsWithIdenticalPieces()
         {
+            //arrange
             var B = @"
 oo
 oo";
-            var (rows, cols) = (6, 4);
+            var board = new int[4][]
+            {
+                new int[6] { 0, 0, 0, 0, 0, 0, },
+                new int[6] { 0, 0, 0, 0, 0, 0, },
+                new int[6] { 0, 0, 0, 0, 0, 0, },
+                new int[6] { 0, 0, 0, 0, 0, 0, },
+            };
             var pieces = new[] { B, B, B, B, B, B }.ToRectangleMatrix('o');
-            var solver = new Pentomino(rows, cols, pieces);
+            
             static int factorial(int n, int acc = 1) => n <= 1 ? acc : factorial(n - 1, n * acc);
             var expectedNumberOfPermutations = factorial(6);
 
+            //act
+            var solver = new Pentomino(board, pieces);
             solver.Solve(1000);
-            var numberOfSolutions = solver.Solutions.Count();
+            var numberOfSolutions = solver.Solutions.Length;
 
+            //assumptions
             numberOfSolutions.Should().Be(expectedNumberOfPermutations);
         }
 
         [Fact]
         public void SolveCalendar()
         {
+            //arrange
             var C = @"
 oo
 o
@@ -102,66 +117,52 @@ ooo";
  o
 oo
 oo";
-            var I = @"oooo";
+            var I = @"
+oooo";
             var T = @"
 ooo
  o
  o";
-            var blocked = @"
-------o
-------o
--
--
--
--
--
-oooo";
             var date = @"
----o---x
--------x
---------
-o-------
---------
---------
---------
-xxxxo---";
-            var (rows, cols) = (8, 7);
+---o--x
+------x
+-------
+o------
+-------
+-------
+-------
+xxxxo--".ToRectangleMatrix('o', 'x').ToIntMatrix();
             var pieceList = new string[] { C, Z, Z_, S, L4, L3, V, d, I, T }.ToRectangleMatrix('o');
-            var blockedList = new string[] { blocked, date }.ToRectangleMatrix('o');
-            var solver = new Pentomino(
-                rows,
-                cols,
-                pieceList,
-                blockedList);
             var expected = @"
-6 6 6 B 5 5 A
-6 8 8 8 8 5 A
-6 4 4 4 4 5 9
-B 4 2 2 9 9 9
-7 3 3 2 2 2 9
-7 7 3 1 1 0 0
-7 7 3 3 1 1 0
-A A A A B 0 0
+7 7 7 0 6 6 0
+7 9 9 9 9 6 0
+7 5 5 5 5 6 A
+0 5 3 3 A A A
+8 4 4 3 3 3 A
+8 8 4 2 2 1 1
+8 8 4 4 2 2 1
+0 0 0 0 0 1 1
 
-5 5 9 B 3 3 A
-5 6 9 9 9 3 A
-5 6 9 2 2 3 3
-B 6 6 6 2 2 2
-7 7 7 8 8 8 8
-4 7 7 1 1 0 0
-4 4 4 4 1 1 0
-A A A A B 0 0"[2..];
+6 6 A 0 4 4 0
+6 7 A A A 4 0
+6 7 A 3 3 4 4
+0 7 7 7 3 3 3
+8 8 8 9 9 9 9
+5 8 8 2 2 1 1
+5 5 5 5 2 2 1
+0 0 0 0 0 1 1"[2..];
 
+            //act
+            var solver = new Pentomino(date, pieceList);
             solver.Solve(10_000);
+
             var firstTwoSolutions = solver
                 .SolutionStrings()
                 .Take(2)
                 .StringJoin(Environment.NewLine + Environment.NewLine);
 
+            //azerty
             firstTwoSolutions.Should().Be(expected);
-
-            Console.WriteLine("cbenchmark: " + solver.stopwatch.ElapsedMilliseconds);
-            Debug.WriteLine("dbenchmark: " + solver.stopwatch.ElapsedMilliseconds);
         }
 
         [Fact]
@@ -212,7 +213,7 @@ oooo";
 oo
  o
  oo";
-            var holes = @"
+            var board = @"
 --------
 --------
 --------
@@ -220,25 +221,24 @@ oo
 ---oo---
 --------
 --------
---------";
+--------".ToRectangleMatrix('o').ToIntMatrix();
             var pentominoes = new[] { F, I, L, N, P, T, U, V, W, X, Y, Z }.ToRectangleMatrix('o');
-            var blocked = new[] { holes }.ToRectangleMatrix('o');
-            var (rows, cols) = (8, 8);
-            var solver = new Pentomino(rows, cols, pentominoes, blocked);
             var correctNumberOfSolutions = 520;
-
-            var correctNumberOfConstraints = 1568;
-            var myNumberOfConstraints = correctNumberOfConstraints + blocked.Count();
+            var correctNumberOfConstraintRows = 1568;
+            var correctNumberOfConstraintCols = pentominoes.Length + (8 * 8 - 4);
 
             //act
+            var solver = new Pentomino(board, pentominoes);
             solver.Solve(10_000);
 
-            var numberOfSolutions = solver.Solutions.Count();
-            var numberOfConstraints = solver.ConstraintMatrix.GetLength(0);
+            var numberOfSolutions = solver.Solutions.Length;
+            var numberOfConstraintRows = solver.ConstraintMatrix.Length;
+            var numberOfConstraintCols = solver.ConstraintMatrix[0].Length;
 
             //assert
             numberOfSolutions.Should().Be(correctNumberOfSolutions);
-            numberOfConstraints.Should().Be(myNumberOfConstraints);
+            numberOfConstraintRows.Should().Be(correctNumberOfConstraintRows);
+            numberOfConstraintCols.Should().Be(correctNumberOfConstraintCols);
 
             //temporary benchmark-ish things
             //solver.stopwatch.ElapsedMilliseconds.Should().BeLessOrEqualTo(6200);

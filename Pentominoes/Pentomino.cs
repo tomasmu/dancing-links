@@ -1,4 +1,5 @@
 ﻿using DancingLinks;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -9,76 +10,59 @@ namespace Pentominoes
     public class Pentomino
     {
         public Pentomino(
-            int boardRows,
-            int boardColumns,
-            bool[][][] pieces,
-            bool[][][] blocked = null)
+            int[][] board,
+            bool[][][] pieces)
         {
+            _board = board;
+            _rows = _board.Length;
+            _cols = _board[0].Length;
+            _cellCount = CellCount(_board);
+
             _pieceList = pieces;
-            _rows = boardRows;
-            _cols = boardColumns;
             _numberOfPieces = _pieceList.Length;
-            _blockedList = blocked;
-            _numberOfBlocked = blocked?.Count() ?? 0;
-            _totalNumberOfPieces = _numberOfPieces + _numberOfBlocked;
-            _constraintCount = _totalNumberOfPieces + _rows * _cols;
-            _blockedGrid = CreateBlockedGrid(_rows, _cols, _blockedList);
+
+            _constraintCount = _numberOfPieces + _cellCount;
+
+            InitMaps();
+
+            var pieceCells = (count: _pieceList.Sum(CellCount), str: _pieceList.Select(CellCount).StringJoin("+"));
+            if (_cellCount != pieceCells.count)
+                throw new ArgumentException($"Number of empty board cells ({_cellCount}) does not match the total piece size ({pieceCells.count}={pieceCells.str})");
         }
 
-        public char[] ActiveCellCharacters { get; set; } = new[] { 'o' };
-
-        private bool[,] CreateBlockedGrid(int rows, int cols, bool[][][] blockedList)
-        {
-            var blockedGrid = new bool[rows, cols];
-            if (blockedList == null)
-                return blockedGrid;
-
-            foreach (var blocked in blockedList)
-            {
-                for (var row = 0; row < rows; row++)
-                {
-                    for (var col = 0; col < cols; col++)
-                    {
-                        if (blocked[row][col])
-                            blockedGrid[row, col] = true;
-                    }
-                }
-            }
-
-            return blockedGrid;
-        }
-
-        private readonly bool[][][] _pieceList;
+        private readonly int[][] _board;
         private readonly int _rows;
         private readonly int _cols;
+        private readonly int _cellCount;
+
+        private readonly bool[][][] _pieceList;
         private readonly int _numberOfPieces;
-        private readonly int _numberOfBlocked;
-        private readonly int _totalNumberOfPieces;
+
         private readonly int _constraintCount;
-        private readonly bool[,] _blockedGrid;
-        private readonly bool[][][] _blockedList;
 
-        public readonly Stopwatch stopwatch = new();
+        private Dictionary<(int row, int col), int> _mapRowColToIndex;
+        private Dictionary<int, (int row, int col)> _mapIndexToRowCol;
 
-        public IEnumerable<IEnumerable<(int pieceId, IEnumerable<(int row, int col)> coordinates)>> Solutions { get; private set; }
+        public bool[][] ConstraintMatrix { get; set; }
+        public int[][][] Solutions { get; private set; }
+        public Stopwatch Stopwatch { get; private set; } = new();
 
         public void Solve(int maxSolutions)
         {
-            stopwatch.Reset();
-            stopwatch.Start();
+            Stopwatch.Reset();
+            Stopwatch.Start();
 
             ConstraintMatrix = CreateConstraintMatrix();
             var toroidalLinkedList = new ToroidalLinkedList(ConstraintMatrix);
             toroidalLinkedList.Solve(maxSolutions);
             Solutions = toroidalLinkedList
                 .Solutions
-                .Select(ParseNodeListSolution);
+                .Select(ParseNodeListSolution)
+                .ToArray();
 
-            stopwatch.Stop();
+            Stopwatch.Stop();
         }
 
-        //todo: create constraints with holes instead of treating them as blocking pieces
-        //this reduces the number of columns
         public bool[][] CreateConstraintMatrix()
         {
             //create a constraint list since we don't know the number of constraints yet
@@ -88,13 +72,14 @@ namespace Pentominoes
             for (var pieceIndex = 0; pieceIndex < _numberOfPieces; pieceIndex++)
             {
                 var pieceRotations = _pieceList[pieceIndex].GetUniqueRotationsAndMirrors();
-                foreach (var piece in pieceRotations) {
+                foreach (var piece in pieceRotations)
+                {
                     var (pieceRows, pieceCols) = piece.GetSize();
                     for (var row = 0; row <= _rows - pieceRows; row++)
                     {
                         for (var col = 0; col <= _cols - pieceCols; col++)
                         {
-                            var constraintRow = CreateConstraintRow(pieceIndex, piece, row, col, pieceRows, pieceCols);
+                            var constraintRow = CreateConstraintRow(pieceIndex, piece, pieceRows, pieceCols, row, col);
 
                             if (constraintRow != null)
                                 constraintList.Add(constraintRow);
@@ -103,36 +88,11 @@ namespace Pentominoes
                 }
             }
 
-            //add blocked constraints as static blocks
-            for (var blockedIndex = 0; blockedIndex < _numberOfBlocked; blockedIndex++)
-            {
-                var pieceIndex = _numberOfPieces + blockedIndex;
-                var blocked = _blockedList[blockedIndex];
-                var (rows, cols) = blocked.GetSize();
-                var constraintRow = new bool[_constraintCount];
-                constraintRow[pieceIndex] = true;
-
-                for (var row = 0; row < rows; row++)
-                {
-                    for (var col = 0; col < cols; col++)
-                    {
-                        if (blocked[row][col])
-                        {
-                            var boardIndex = row * _cols + col;
-                            var constraintIndex = _totalNumberOfPieces + boardIndex;
-                            constraintRow[constraintIndex] = true;
-                        }
-                    }
-                }
-
-                constraintList.Add(constraintRow);
-            }
-
             var constraintMatrix = constraintList.ToArray();
             return constraintMatrix;
         }
 
-        private bool[] CreateConstraintRow(int pieceIndex, bool[][] piece, int row, int col, int pieceRows, int pieceCols)
+        private bool[] CreateConstraintRow(int pieceIndex, bool[][] piece, int pieceRows, int pieceCols, int row, int col)
         {
             var constraintRow = new bool[_constraintCount];
             constraintRow[pieceIndex] = true;
@@ -141,16 +101,13 @@ namespace Pentominoes
             {
                 for (var pieceCol = 0; pieceCol < pieceCols; pieceCol++)
                 {
-                    var boardRow = row + pieceRow;
-                    var boardCol = col + pieceCol;
-
                     if (piece[pieceRow][pieceCol])
                     {
-                        if (_blockedGrid[boardRow, boardCol])
+                        var (boardRow, boardCol) = (row + pieceRow, col + pieceCol);
+                        if (IsBlocked(_board[boardRow][boardCol]))
                             return null;
 
-                        var boardIndex = boardRow * _cols + boardCol;
-                        var constraintIndex = _totalNumberOfPieces + boardIndex;
+                        var constraintIndex = _mapRowColToIndex[(boardRow, boardCol)];
                         constraintRow[constraintIndex] = true;
                     }
                 }
@@ -159,25 +116,19 @@ namespace Pentominoes
             return constraintRow;
         }
 
-        private string ToSolutionString(IEnumerable<(int pieceId, IEnumerable<(int row, int col)> coordinates)> solution)
+        private static bool IsBlocked(int cellValue) => cellValue != default;
+
+        private string ToSolutionString(int[][] board)
         {
             var sb = new StringBuilder();
-            var board = new int[_rows, _cols];
-            foreach (var (pieceId, coordinates) in solution)
-            {
-                foreach (var (row, col) in coordinates)
-                {
-                    board[row, col] = pieceId;
-                }
-            }
-
             for (var row = 0; row < _rows; row++)
             {
                 for (var col = 0; col < _cols; col++)
                 {
                     if (col != 0)
                         sb.Append(' ');
-                    sb.Append(board[row, col].ToBase36Digit());
+
+                    sb.Append(board[row][col].ToBase36Digit());
                 }
 
                 if (row != _rows - 1)
@@ -188,37 +139,101 @@ namespace Pentominoes
             return result;
         }
 
-        public IEnumerable<string> SolutionStrings() =>
-            Solutions.Select(ToSolutionString);
+        public IEnumerable<string> SolutionStrings() => Solutions.Select(ToSolutionString);
 
-        private IEnumerable<(int pieceId, IEnumerable<(int row, int col)> coordinates)>
-            ParseNodeListSolution(List<Node> nodes)
+        private int[][] ParseNodeListSolution(List<Node> nodes)
         {
             var solutionRows = nodes
                 .Select(node => ConstraintMatrix[node.RowId]);
 
-            var boardRows = solutionRows
-                .Select(row =>
+            var board = new int[_rows][];
+            for (var row = 0; row < _rows; row++)
+                board[row] = new int[_cols];
+
+            foreach (var constraintRow in solutionRows)
+            {
+                for (var row = 0; row < _rows; row++)
                 {
-                    var piece = row.Take(_totalNumberOfPieces);
-                    var boardRowWithPiece = row.Skip(_totalNumberOfPieces);
+                    for (var col = 0; col < _cols; col++)
+                    {
+                        if (IsBlocked(_board[row][col]))
+                            continue;
 
-                    var pieceId = piece
-                        .ToList()
-                        .FindIndex(b => b == true);
-                    var pieceIndices = boardRowWithPiece
-                        .Select((boolean, index) => (boolean, index))
-                        .Where(bi => bi.boolean == true)
-                        .Select(bi => bi.index);
+                        var constraintIndex = _mapRowColToIndex[(row, col)];
+                        if (constraintRow[constraintIndex])
+                        {
+                            var pieceIndex = GetPieceIndex(constraintRow);
+                            board[row][col] = pieceIndex + 1;
+                        }
 
-                    var coordinates = pieceIndices
-                        .Select(index => (row: index / _cols, col: index % _cols));
-                    return (pieceId, coordinates);
-                });
+                        constraintIndex++;
+                    }
+                }
+            }
 
-            return boardRows;
+            return board;
         }
 
-        public bool[][] ConstraintMatrix { get; set; }
+        private void InitMaps()
+        {
+            _mapRowColToIndex = new();
+            _mapIndexToRowCol = new();
+
+            var cellIndex = 0;
+            for (var row = 0; row < _rows; row++)
+            {
+                for (var col = 0; col < _cols; col++)
+                {
+                    if (IsBlocked(_board[row][col]))
+                        continue;
+
+                    var constraintIndex = _numberOfPieces + cellIndex;
+                    _mapRowColToIndex[(row, col)] = constraintIndex;
+                    _mapIndexToRowCol[constraintIndex] = (row, col);
+
+                    cellIndex++;
+                }
+            }
+        }
+
+        private int CellCount(int[][] matrix)
+        {
+            var count = 0;
+            var (rows, cols) = (matrix.Length, matrix[0].Length);
+            for (var row = 0; row < rows; row++)
+            {
+                for (var col = 0; col < cols; col++)
+                {
+                    if (!IsBlocked(matrix[row][col]))
+                        count++;
+                }
+            }
+
+            return count;
+        }
+
+        private int CellCount(bool[][] matrix)
+        {
+            var count = 0;
+            var (rows, cols) = (matrix.Length, matrix[0].Length);
+            for (var row = 0; row < rows; row++)
+            {
+                for (var col = 0; col < cols; col++)
+                {
+                    if (matrix[row][col])
+                        count++;
+                }
+            }
+
+            return count;
+        }
+
+        private static int GetPieceIndex(bool[] constraintRow)
+        {
+            var pieceIndex = 0;
+            while (!constraintRow[pieceIndex])
+                pieceIndex++;
+            return pieceIndex;
+        }
     }
 }

@@ -13,9 +13,9 @@ namespace Pentominoes
         public static bool[][][] ToRectangleMatrix(this IEnumerable<string> strings, char[] chars) =>
             strings.Select(str => str.ToRectangleMatrix(chars)).ToArray();
         public static bool[][] ToRectangleMatrix(this string stringLiteral, char chr) =>
-            stringLiteral.ToRectangleMatrix(new [] { chr });
+            stringLiteral.ToRectangleMatrix(new[] { chr });
 
-        public static bool[][] ToRectangleMatrix(this string stringLiteral, char[] chars)
+        public static bool[][] ToRectangleMatrix(this string stringLiteral, params char[] chars)
         {
             static bool FirstRowNotEmpty(string str, int index) => index != 0 || str.Length > 0;
 
@@ -34,6 +34,33 @@ namespace Pentominoes
                 .ToArray();
 
             return matrix;
+        }
+
+        public static int[][] ToIntMatrix(this bool[][] matrix)
+        {
+            var (rows, cols) = (matrix.Length, matrix[0].Length);
+            var result = new int[rows][];
+            for (var row = 0; row < matrix.Length; row++)
+            {
+                result[row] = new int[cols];
+                for (var col = 0; col < cols; col++)
+                    result[row][col] = matrix[row][col] ? 1 : 0;
+            }
+
+            return result;
+        }
+
+        public static string ToStringThing(this bool[][] matrix, string delimiter = " ")
+        {
+            var sb = new StringBuilder();
+            for (var row = 0; row < matrix.Length; row++)
+            {
+                sb.Append(string.Join(delimiter, matrix[row].Select(b => b ? '1' : '0')));
+                if (row != matrix.Length - 1)
+                    sb.AppendLine();
+            }
+
+            return sb.ToString();
         }
 
         public static string ToStringThing<T>(this T[][] matrix, string delimiter = " ")
@@ -147,7 +174,7 @@ namespace Pentominoes
             ? number.ToString()
             : ((char)(number - 10 + 'A')).ToString();
 
-        public static string StringJoin(this IEnumerable<string> str, string delimiter) =>
+        public static string StringJoin<T>(this IEnumerable<T> str, string delimiter) =>
             string.Join(delimiter, str);
 
         public static (int rows, int cols) GetSize<T>(this T[,] matrix) =>
