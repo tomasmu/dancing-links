@@ -23,11 +23,21 @@ namespace Pentominoes
 
             _constraintCount = _numberOfPieces + _cellCount;
 
-            InitMaps();
+            SanityCheck();
 
-            var pieceCells = (count: _pieceList.Sum(CellCount), str: _pieceList.Select(CellCount).StringJoin("+"));
-            if (_cellCount != pieceCells.count)
-                throw new ArgumentException($"Number of empty board cells ({_cellCount}) does not match the total piece size ({pieceCells.count}={pieceCells.str})");
+            CreateIndexMapping();
+        }
+
+        private void SanityCheck()
+        {
+            //check if it's theoretically possible to fill the board with the given pieces
+            //the size of all pieces must equal the board size in order to fill it exactly
+            var pieceCells = _pieceList.Sum(CellCount);
+            if (_cellCount != pieceCells)
+            {
+                var pieceCounts = _pieceList.Select(CellCount).StringJoin("+");
+                throw new ArgumentException($"{_cellCount} board cells != {pieceCells} piece cells ({pieceCounts})");
+            }
         }
 
         private readonly int[][] _board;
@@ -104,7 +114,7 @@ namespace Pentominoes
                     if (piece[pieceRow][pieceCol])
                     {
                         var (boardRow, boardCol) = (row + pieceRow, col + pieceCol);
-                        if (IsBlocked(_board[boardRow][boardCol]))
+                        if (!IsBlank(_board[boardRow][boardCol]))
                             return null;
 
                         var constraintIndex = _mapRowColToIndex[(boardRow, boardCol)];
@@ -116,7 +126,8 @@ namespace Pentominoes
             return constraintRow;
         }
 
-        private static bool IsBlocked(int cellValue) => cellValue != default;
+        private static bool IsBlank(int cellValue) => cellValue == default;
+        private static bool IsBlank(bool cellValue) => cellValue == default;
 
         private string ToSolutionString(int[][] board)
         {
@@ -156,7 +167,7 @@ namespace Pentominoes
                 {
                     for (var col = 0; col < _cols; col++)
                     {
-                        if (IsBlocked(_board[row][col]))
+                        if (!IsBlank(_board[row][col]))
                             continue;
 
                         var constraintIndex = _mapRowColToIndex[(row, col)];
@@ -165,8 +176,6 @@ namespace Pentominoes
                             var pieceIndex = GetPieceIndex(constraintRow);
                             board[row][col] = pieceIndex + 1;
                         }
-
-                        constraintIndex++;
                     }
                 }
             }
@@ -174,7 +183,7 @@ namespace Pentominoes
             return board;
         }
 
-        private void InitMaps()
+        private void CreateIndexMapping()
         {
             _mapRowColToIndex = new();
             _mapIndexToRowCol = new();
@@ -184,7 +193,7 @@ namespace Pentominoes
             {
                 for (var col = 0; col < _cols; col++)
                 {
-                    if (IsBlocked(_board[row][col]))
+                    if (!IsBlank(_board[row][col]))
                         continue;
 
                     var constraintIndex = _numberOfPieces + cellIndex;
@@ -196,7 +205,7 @@ namespace Pentominoes
             }
         }
 
-        private int CellCount(int[][] matrix)
+        private static int CellCount(int[][] matrix)
         {
             var count = 0;
             var (rows, cols) = (matrix.Length, matrix[0].Length);
@@ -204,7 +213,7 @@ namespace Pentominoes
             {
                 for (var col = 0; col < cols; col++)
                 {
-                    if (!IsBlocked(matrix[row][col]))
+                    if (IsBlank(matrix[row][col]))
                         count++;
                 }
             }
@@ -212,7 +221,7 @@ namespace Pentominoes
             return count;
         }
 
-        private int CellCount(bool[][] matrix)
+        private static int CellCount(bool[][] matrix)
         {
             var count = 0;
             var (rows, cols) = (matrix.Length, matrix[0].Length);
@@ -220,7 +229,7 @@ namespace Pentominoes
             {
                 for (var col = 0; col < cols; col++)
                 {
-                    if (matrix[row][col])
+                    if (!IsBlank(matrix[row][col]))
                         count++;
                 }
             }

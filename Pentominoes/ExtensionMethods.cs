@@ -8,14 +8,10 @@ namespace Pentominoes
 {
     public static class ExtensionMethods
     {
-        public static bool[][][] ToRectangleMatrix(this IEnumerable<string> strings, char chr) =>
-            strings.ToRectangleMatrix(new [] { chr });
-        public static bool[][][] ToRectangleMatrix(this IEnumerable<string> strings, char[] chars) =>
-            strings.Select(str => str.ToRectangleMatrix(chars)).ToArray();
-        public static bool[][] ToRectangleMatrix(this string stringLiteral, char chr) =>
-            stringLiteral.ToRectangleMatrix(new[] { chr });
+        public static bool[][][] ToRectangleMatrix(this IEnumerable<string> stringLiterals, params char[] blockingChars) =>
+            stringLiterals.Select(str => str.ToRectangleMatrix(blockingChars)).ToArray();
 
-        public static bool[][] ToRectangleMatrix(this string stringLiteral, params char[] chars)
+        public static bool[][] ToRectangleMatrix(this string stringLiteral, params char[] blockingChars)
         {
             static bool FirstRowNotEmpty(string str, int index) => index != 0 || str.Length > 0;
 
@@ -24,7 +20,7 @@ namespace Pentominoes
                 .Where(FirstRowNotEmpty);
             var maxColumnLength = stringRows.Max(str => str.Length);
 
-            bool MapCharToBool(char chr) => chars.Contains(chr);
+            bool MapCharToBool(char chr) => blockingChars.Contains(chr);
 
             var matrix = stringRows
                 .Select(str => str

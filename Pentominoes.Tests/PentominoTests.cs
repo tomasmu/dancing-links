@@ -69,9 +69,8 @@ oo";
                 new int[6] { 0, 0, 0, 0, 0, 0, },
             };
             var pieces = new[] { B, B, B, B, B, B }.ToRectangleMatrix('o');
-            
-            static int factorial(int n, int acc = 1) => n <= 1 ? acc : factorial(n - 1, n * acc);
-            var expectedNumberOfPermutations = factorial(6);
+
+            var expectedNumberOfPermutations = Factorial(6);
 
             //act
             var solver = new Pentomino(board, pieces);
@@ -81,6 +80,8 @@ oo";
             //assumptions
             numberOfSolutions.Should().Be(expectedNumberOfPermutations);
         }
+
+        static int Factorial(int n, int acc = 1) => n <= 1 ? acc : Factorial(n - 1, n * acc);
 
         [Fact]
         public void SolveCalendar()
@@ -229,7 +230,7 @@ oo
 
             //act
             var solver = new Pentomino(board, pentominoes);
-            solver.Solve(10_000);
+            solver.Solve(1_000);
 
             var numberOfSolutions = solver.Solutions.Length;
             var numberOfConstraintRows = solver.ConstraintMatrix.Length;
@@ -243,6 +244,81 @@ oo
             //temporary benchmark-ish things
             //solver.stopwatch.ElapsedMilliseconds.Should().BeLessOrEqualTo(6200);
             //solver.stopwatch.ElapsedMilliseconds.Should().BeGreaterThan(6200);
+        }
+
+        [Fact]
+        public void Solve_1337_tetris()
+        {
+            //arrange
+            var L = @"
+o
+o
+oo";
+            var N = @"
+oo
+ oo";
+            var T = @"
+ooo
+ o";
+            var V = @"
+o
+oo";
+            var temp = @"
+ooo-o
+o--ooo";
+            var board = new Dictionary<string, string>
+            {
+                ["stair"] = @"
+-xxxxxx
+--xxxxx
+---xxxx
+----xxx
+-----xx
+------x
+x------",
+                ["9x3"] = @"
+---
+---
+---
+---
+---
+---
+---
+---
+---",
+                ["two_square"] = @"
+xoooxx
+ooooxx
+oooooo
+oooooo
+xxoooo
+xxoooo",
+                ["remove_square"] = @"
+------
+------
+--xxx-
+--xxx-
+--xxx-
+------",
+                ["temp"] = @"
+-------
+-------
+-------
+-------
+-------",
+            }["temp"].ToRectangleMatrix('x').ToIntMatrix();
+            var pentominoes = new[] { L, L, L, L, N, T, V, temp }.ToRectangleMatrix('o');
+
+            var solver = new Pentomino(board, pentominoes);
+            solver.Solve(10_000);
+
+            var solutions = solver
+                .SolutionStrings()
+                .StringJoin(Environment.NewLine + Environment.NewLine);
+            var permutationsAndMirrors = Factorial(4) * 2d;
+            var solutionCount = solver.Solutions.Length / permutationsAndMirrors;
+
+            solver.Solutions.Length.Should().BeGreaterThan(0);
         }
     }
 }

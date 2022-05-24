@@ -17,6 +17,7 @@ namespace DancingLinks
             columnRoot = CreateToroidalLinkedList(constraintMatrix);
         }
 
+        //todo: add constructor(s) with transformations and have only one CreateToroidalLinkedList
         private Node CreateToroidalLinkedList(bool[,] constraintMatrix)
         {
             //create column root
