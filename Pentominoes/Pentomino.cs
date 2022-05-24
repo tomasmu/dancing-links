@@ -165,8 +165,6 @@ namespace Pentominoes
                             var pieceIndex = GetPieceIndex(constraintRow);
                             board[row][col] = pieceIndex + 1;
                         }
-
-                        constraintIndex++;
                     }
                 }
             }

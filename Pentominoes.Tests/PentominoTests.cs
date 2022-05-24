@@ -161,8 +161,12 @@ xxxxo--".ToRectangleMatrix('o', 'x').ToIntMatrix();
                 .Take(2)
                 .StringJoin(Environment.NewLine + Environment.NewLine);
 
+            var numberOfConstraintColumns = solver.ConstraintMatrix[0].Length;
+            var expectedNumberOfConstraintColumns = pieceList.Length + (8 * 7) - (2 + 4) - (1+1+1);
+
             //azerty
             firstTwoSolutions.Should().Be(expected);
+            numberOfConstraintColumns.Should().Be(expectedNumberOfConstraintColumns);
         }
 
         [Fact]
@@ -173,8 +177,7 @@ xxxxo--".ToRectangleMatrix('o', 'x').ToIntMatrix();
  oo
 oo
  o";
-            var I = @"
-ooooo";
+            var I = @"ooooo";
             var L = @"
 o
 o
@@ -243,6 +246,40 @@ oo
             //temporary benchmark-ish things
             //solver.stopwatch.ElapsedMilliseconds.Should().BeLessOrEqualTo(6200);
             //solver.stopwatch.ElapsedMilliseconds.Should().BeGreaterThan(6200);
+        }
+
+        [Fact]
+        public void Solve_1337_pieces()
+        {
+            var L = @"
+o
+o
+oo";
+            var T = @"
+ooo
+ o";
+            var V = @"
+o
+oo";
+            var Z = @"
+oo
+ oo";
+            var pieces = new[] { L, L, L, L, T, V, Z }.ToRectangleMatrix('o');
+            var board = @"
+-xxxxxx
+--xxxxx
+---xxxx
+----xxx
+-----xx
+-x----x
+-------".ToRectangleMatrix('x').ToIntMatrix();
+            var solver = new Pentomino(board, pieces);
+            solver.Solve(int.MaxValue);
+
+            var solutionCount = solver.Solutions.Length;
+            var solutions = solver.SolutionStrings().StringJoin(Environment.NewLine + Environment.NewLine);
+
+            solutionCount.Should().BeGreaterThan(0);
         }
     }
 }
