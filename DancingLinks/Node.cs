@@ -25,8 +25,7 @@ namespace DancingLinks
     //class DataNode : BaseNode
     //{
     //    //up, down
-    //    //T data;
-    //    //rowId, colId or data?
+    //    //rowId as the only data?
     //    //cover header?
     //}
 
@@ -39,17 +38,16 @@ namespace DancingLinks
 
     public class Node
     {
-        public Node Left { get; set; }
-        public Node Right { get; set; }
-        public Node Up { get; set; }
-        public Node Down { get; set; }
+        public Node Left;
+        public Node Right;
+        public Node Up;
+        public Node Down;
 
-        public Node ColumnHeader { get; set; }
+        public Node ColumnHeader;
+        public int Count;
 
-        public int RowId { get; set; }
-        public int ColId { get; set; }
-        
-        public int Count { get; set; }
+        public int RowId;
+        public int ColId;
 
         public Node()
         {
@@ -65,7 +63,7 @@ namespace DancingLinks
             ColId = col;
         }
 
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]    //todo: benchmark
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddHorizontalNode(Node node)
         {
             node.Right = this;
@@ -74,7 +72,7 @@ namespace DancingLinks
             this.Left = node;
         }
 
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddVerticalDataNode(Node node)
         {
             node.Down = this;
@@ -86,7 +84,7 @@ namespace DancingLinks
             Count++;
         }
 
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void CoverColumnAndRows()
         {
             CoverHorizontalNode();
@@ -94,7 +92,7 @@ namespace DancingLinks
                 data.CoverRow();
         }
 
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void UncoverColumnAndRows()
         {
             for (var data = this.Up; data != this; data = data.Up)
@@ -102,21 +100,21 @@ namespace DancingLinks
             UncoverHorizontalNode();
         }
 
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void CoverHorizontalNode()
         {
             this.Right.Left = this.Left;
             this.Left.Right = this.Right;
         }
 
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void UncoverHorizontalNode()
         {
             this.Right.Left = this;
             this.Left.Right = this;
         }
 
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void CoverVerticalNode()
         {
             this.Down.Up = this.Up;
@@ -125,7 +123,7 @@ namespace DancingLinks
             ColumnHeader.Count--;
         }
 
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void UncoverVerticalNode()
         {
             this.Down.Up = this;
@@ -134,14 +132,14 @@ namespace DancingLinks
             ColumnHeader.Count++;
         }
 
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void CoverRow()
         {
             for (var data = this.Right; data != this; data = data.Right)
                 data.CoverVerticalNode();
         }
 
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void UncoverRow()
         {
             for (var data = this.Left; data != this; data = data.Left)
