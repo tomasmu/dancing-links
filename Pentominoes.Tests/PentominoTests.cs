@@ -32,7 +32,7 @@ o";
 2 0 1
 
 1 1 1
-1 0 2"[2..];
+1 0 2".Trim();
             var expectedConstraintMatrix = @"
 1 0 1 1 1 0 1
 1 0 1 1 1 1 0
@@ -40,7 +40,7 @@ o";
 0 1 0 1 0 0 0
 0 1 0 0 1 0 0
 0 1 0 0 0 1 0
-0 1 0 0 0 0 1"[2..];
+0 1 0 0 0 0 1".Trim();
 
             //act
             solver.Solve(3);
@@ -151,7 +151,7 @@ xxxxo--".ToRectangleMatrix('o', 'x').ToIntMatrix();
 8 8 8 9 9 9 9
 5 8 8 2 2 1 1
 5 5 5 5 2 2 1
-0 0 0 0 0 1 1"[2..];
+0 0 0 0 0 1 1".Trim();
 
             //act
             var solver = new Pentomino(date, pieceList);

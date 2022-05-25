@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Pentominoes
@@ -14,9 +15,9 @@ namespace Pentominoes
         public static bool[][] ToRectangleMatrix(this string stringLiteral, params char[] blockingChars)
         {
             static bool FirstRowNotEmpty(string str, int index) => index != 0 || str.Length > 0;
-
-            var stringRows = stringLiteral
-                .Split(Environment.NewLine)
+            var newLinePattern = @"\r\n|\r|\n";
+            var stringRows = Regex
+                .Split(stringLiteral, newLinePattern)
                 .Where(FirstRowNotEmpty);
             var maxColumnLength = stringRows.Max(str => str.Length);
 
