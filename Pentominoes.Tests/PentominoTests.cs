@@ -162,8 +162,12 @@ xxxxo--".ToRectangleMatrix('o', 'x').ToIntMatrix();
                 .Take(2)
                 .StringJoin(Environment.NewLine + Environment.NewLine);
 
+            var numberOfConstraintColumns = solver.ConstraintMatrix[0].Length;
+            var expectedNumberOfConstraintColumns = pieceList.Length + (8 * 7) - (2 + 4) - (1+1+1);
+
             //azerty
             firstTwoSolutions.Should().Be(expected);
+            numberOfConstraintColumns.Should().Be(expectedNumberOfConstraintColumns);
         }
 
         [Fact]
@@ -174,8 +178,7 @@ xxxxo--".ToRectangleMatrix('o', 'x').ToIntMatrix();
  oo
 oo
  o";
-            var I = @"
-ooooo";
+            var I = @"ooooo";
             var L = @"
 o
 o

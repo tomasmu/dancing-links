@@ -1,4 +1,10 @@
-﻿using Pentominoes;
+﻿using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Diagnosers;
+using BenchmarkDotNet.Diagnostics.Windows;
+using BenchmarkDotNet.Jobs;
+using BenchmarkDotNet.Running;
+using Pentominoes;
 using SudokuSolver;
 using System;
 using System.Collections.Generic;
@@ -11,9 +17,9 @@ using System.Threading.Tasks;
 
 namespace ConsoleApp
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             //            //todo: command line arguments
             //            //benchmark
@@ -82,6 +88,75 @@ namespace ConsoleApp
             //            Console.WriteLine($"number of puzzles : {sudokus.Count()}");
             //            Console.WriteLine($"total milliseconds: {totalTime.Elapsed.TotalMilliseconds}");
             //            Console.ReadKey();
+
+            var summary = BenchmarkRunner.Run<PentominoBenchmark>();
+
+            //var temp = new PentominoBenchmark();
+            //temp.SolvePentominoProblem();
+        }
+    }
+
+    [MemoryDiagnoser]
+    public class PentominoBenchmark
+    {
+        [Benchmark]
+        public void SolvePentominoProblem()
+        {
+            var F = @"
+ oo
+oo
+ o";
+            var I = @"ooooo";
+            var L = @"
+o
+o
+o
+oo";
+            var N = @"
+oo
+ ooo";
+            var P = @"
+oo
+oo
+o";
+            var T = @"
+ooo
+ o
+ o";
+            var U = @"
+o o
+ooo";
+            var V = @"
+o
+o
+ooo";
+            var W = @"
+o
+oo
+ oo";
+            var X = @"
+ o
+ooo
+ o";
+            var Y = @"
+  o
+oooo";
+            var Z = @"
+oo
+ o
+ oo";
+            var board = @"
+--------
+--------
+--------
+---oo---
+---oo---
+--------
+--------
+--------".ToRectangleMatrix('o').ToIntMatrix();
+            var pentominoes = new[] { F, I, L, N, P, T, U, V, W, X, Y, Z }.ToRectangleMatrix('o');
+            var solver = new Pentomino(board, pentominoes);
+            solver.Solve(10_000);
         }
     }
 }

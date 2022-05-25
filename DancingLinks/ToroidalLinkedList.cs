@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace DancingLinks
@@ -140,7 +141,7 @@ namespace DancingLinks
 
                 //if (Solutions.Count < maxSolutions)
                 //    Search(maxSolutions);
-                //50% faster when searching for a single solution, 1-2% faster when searching for all
+                //old benchmark: 50% faster when searching for a single solution, 1-2% faster when searching for all
                 Search(maxSolutions);
                 if (Solutions.Count >= maxSolutions)
                     return;
@@ -157,6 +158,7 @@ namespace DancingLinks
             colHead.UncoverColumnAndRows();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private Node GetColumnWithFewestRows()
         {
             //todo:
