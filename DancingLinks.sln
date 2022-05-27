@@ -11,9 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SudokuSolver.Tests", "Sudok
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pentominoes", "Pentominoes\Pentominoes.csproj", "{A5D64BF6-2EF1-4CE5-8F2D-05EEE7018DAF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pentominoes.Tests", "Pentominoes.Tests\Pentominoes.Tests.csproj", "{1F0B320C-557D-4FE1-8762-B549664F2005}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pentominoes.Tests", "Pentominoes.Tests\Pentominoes.Tests.csproj", "{1F0B320C-557D-4FE1-8762-B549664F2005}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp", "ConsoleApp\ConsoleApp.csproj", "{F7CEC222-DE4A-488F-9D6A-752A1A42D733}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleApp", "ConsoleApp\ConsoleApp.csproj", "{F7CEC222-DE4A-488F-9D6A-752A1A42D733}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

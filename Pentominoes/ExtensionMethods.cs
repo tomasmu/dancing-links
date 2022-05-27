@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Pentominoes
 {
-    public static class ExtensionMethods
+        public static class ExtensionMethods
     {
         public static bool[][][] ToRectangleMatrix(this IEnumerable<string> stringLiterals, params char[] blockingChars) =>
             stringLiterals.Select(str => str.ToRectangleMatrix(blockingChars)).ToArray();

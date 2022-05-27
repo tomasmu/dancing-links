@@ -1,0 +1,17 @@
+<Project>
+  <PropertyGroup>
+    <!--
+    preprocessor directives for testing purposes
+    making it easy to exclude them when compiling (performance reasons)
+
+    gotcha:
+    <DefineConstants> always overwrites the previous value
+    in order to append on separate rows, previous values must be included with $(DefineConstants)
+    -->
+
+    <!--<DefineConstants>$(DefineConstants);STATS</DefineConstants>-->
+    <!--<DefineConstants>$(DefineConstants);ASCII</DefineConstants>-->
+    <!--<DefineConstants>$(DefineConstants);ALL_GUESSES</DefineConstants>-->
+    <!--<DefineConstants>$(DefineConstants);TESTKOSSA</DefineConstants>-->
+  </PropertyGroup>
+</Project>

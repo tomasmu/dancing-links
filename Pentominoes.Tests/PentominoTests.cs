@@ -170,10 +170,8 @@ xxxxo--".ToRectangleMatrix('o', 'x').ToIntMatrix();
             numberOfConstraintColumns.Should().Be(expectedNumberOfConstraintColumns);
         }
 
-        [Fact]
-        public void SolvePentominoProblem()
+        private bool[][][] GetPentominoPieces()
         {
-            //arrange
             var F = @"
  oo
 oo
@@ -217,6 +215,15 @@ oooo";
 oo
  o
  oo";
+
+            var pentominoes = new[] { F, I, L, N, P, T, U, V, W, X, Y, Z }.ToRectangleMatrix('o');
+            return pentominoes;
+        }
+
+        [Fact]
+        public void Solve_Scotts_Pentomino_Problem()
+        {
+            //arrange
             var board = @"
 --------
 --------
@@ -226,14 +233,18 @@ oo
 --------
 --------
 --------".ToRectangleMatrix('o').ToIntMatrix();
-            var pentominoes = new[] { F, I, L, N, P, T, U, V, W, X, Y, Z }.ToRectangleMatrix('o');
+            var pentominoes = GetPentominoPieces();
             var correctNumberOfSolutions = 520;
             var correctNumberOfConstraintRows = 1568;
             var correctNumberOfConstraintCols = pentominoes.Length + (8 * 8 - 4);
 
             //act
             var solver = new Pentomino(board, pentominoes);
-            solver.Solve(1_000);
+            solver.Solve(1000);
+
+            //var allGuesses = solver
+            //    .AllGuessesStrings()
+            //    .StringJoin(Environment.NewLine + Environment.NewLine);
 
             var numberOfSolutions = solver.Solutions.Length;
             var numberOfConstraintRows = solver.ConstraintMatrix.Length;
@@ -243,10 +254,6 @@ oo
             numberOfSolutions.Should().Be(correctNumberOfSolutions);
             numberOfConstraintRows.Should().Be(correctNumberOfConstraintRows);
             numberOfConstraintCols.Should().Be(correctNumberOfConstraintCols);
-
-            //temporary benchmark-ish things
-            //solver.stopwatch.ElapsedMilliseconds.Should().BeLessOrEqualTo(6200);
-            //solver.stopwatch.ElapsedMilliseconds.Should().BeGreaterThan(6200);
         }
 
         [Fact]
@@ -266,7 +273,7 @@ ooo
             var V = @"
 o
 oo";
-            var temp = @"
+            var testpiece = @"
 ooo-o
 o--ooo";
             var board = new Dictionary<string, string>
@@ -289,13 +296,6 @@ x------",
 ---
 ---
 ---",
-                ["two_square"] = @"
-xoooxx
-ooooxx
-oooooo
-oooooo
-xxoooo
-xxoooo",
                 ["remove_square"] = @"
 ------
 ------
@@ -310,7 +310,7 @@ xxoooo",
 -------
 -------",
             }["temp"].ToRectangleMatrix('x').ToIntMatrix();
-            var pentominoes = new[] { L, L, L, L, N, T, V, temp }.ToRectangleMatrix('o');
+            var pentominoes = new[] { L, L, L, L, N, T, V, testpiece }.ToRectangleMatrix('o');
 
             var solver = new Pentomino(board, pentominoes);
             solver.Solve(10_000);
