@@ -14,9 +14,9 @@ namespace DancingLinks
             _constraintMatrix = constraintMatrix;
             _rows = _constraintMatrix.Length;
             _cols = _constraintMatrix[0].Length;
-            _maxRowDigits = _rows.GetWidth();
-            _maxColDigits = _cols.GetWidth();
-            columnRoot = CreateToroidalLinkedList(_constraintMatrix);
+            _maxRowDigits = _rows.NumberOfDigits();
+            _maxColDigits = _cols.NumberOfDigits();
+            _columnRoot = CreateToroidalLinkedList(_constraintMatrix);
         }
 
         private bool[][] _constraintMatrix;
@@ -66,35 +66,54 @@ namespace DancingLinks
             return colRoot;
         }
 
-        private readonly Stack<Node> guesses = new Stack<Node>();
-        public List<List<Node>> Solutions { get; set; } = new List<List<Node>>(); //todo: List<Solution>?
-        private readonly Node columnRoot;
+        private readonly Stack<Node> _guesses = new Stack<Node>();
+        public List<List<Node>> Solutions { get; set; } = new List<List<Node>>();
+        private readonly Node _columnRoot;
         private int _maxSolutions;
-        private Dictionary<string, long> _counters;
-        private Stopwatch _stopwatch;
+        private Stopwatch _stopwatch = new Stopwatch();
+        public List<List<Node>> AllGuesses { get; set; } = new List<List<Node>>();
 
         public void Solve(int maxSolutions)
         {
             _maxSolutions = maxSolutions;
             Solutions.Clear();
-            guesses.Clear();
-            _counters = new Dictionary<string, long>();
-            _stopwatch = new Stopwatch();
-            _stopwatch.Start();
+            _guesses.Clear();
+            AllGuesses.Clear();
+            _stopwatch.Restart();
+#if STATS && DEBUG
+            Stats.Counters.Clear();
+#endif
             Search();
+#if STATS && DEBUG
+            //don't forget to inspect the stats
+            Debugger.Break();
+#endif
         }
 
         //this is DLX, Algorithm X implemented with Dancing Links
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void Search()
         {
-            _counters.Increment(nameof(Search));
-            var temp = ToStringThing();
+#if DEBUG
+            //var hest = 1337;
+#endif
+#if STATS && DEBUG
+            Stats.IncrementCounter(nameof(Search));
+#endif
+#if ASCII && DEBUG
+            var toroidalAsciiArt = ToStringThing();
+#endif
+#if ALL_GUESSES && DEBUG
+            AllGuesses.Add(new List<Node>(_guesses));
+#endif
+
             //if column list is empty we have found a solution
-            if (columnRoot.Right == columnRoot)
+            if (_columnRoot.Right == _columnRoot)
             {
-                var solution = new List<Node>(guesses);
+                //todo: _guesses can be reduced to row ids, benchmark
+                var solution = new List<Node>(_guesses);
                 Solutions.Add(solution);
-                _counters["solution_" + Solutions.Count] = _stopwatch.ElapsedMilliseconds;
+
                 return;
             }
 
@@ -102,7 +121,9 @@ namespace DancingLinks
             //if we have columns without data rows it's unsolvable
             if (colHead.Count == 0)
             {
-                _counters.Increment("unsolvable");
+#if STATS && DEBUG
+                Stats.IncrementCounter("unsolvable");
+#endif
                 return;
             }
 
@@ -112,24 +133,28 @@ namespace DancingLinks
             //loop vertical nodes
             for (var dataRow = colHead.Down; dataRow != colHead; dataRow = dataRow.Down)
             {
-                _counters.Increment(nameof(guesses));
+#if STATS && DEBUG
+                Stats.IncrementCounter(nameof(_guesses));
+#endif
                 //guess row is part of the solution
-                guesses.Push(dataRow);
+                _guesses.Push(dataRow);
 
                 //cover columns with intersecting rows
                 for (var dataCol = dataRow.Right; dataCol != dataRow; dataCol = dataCol.Right)
                 {
-                    _counters.Increment("dataCol cover");
+#if STATS && DEBUG
+                    Stats.IncrementCounter("dataCol cover");
+#endif
                     dataCol.ColumnHeader.CoverColumnAndRows();
                 }
 
-                //if (Solutions.Count < maxSolutions)
-                //    Search(maxSolutions);
-                //old benchmark: 50% faster when searching for a single solution, 1-2% faster when searching for all
+                //todo: redo benchmark, performance for 1-N vs all solutions
+                //conditional search vs conditional return
                 Search();
+#if TESTKOSSA || true
                 if (Solutions.Count >= _maxSolutions)
                     return;
-
+#endif
                 //backtrack current guess
                 for (var dataCol = dataRow.Left; dataCol != dataRow; dataCol = dataCol.Left)
                 {
@@ -137,7 +162,7 @@ namespace DancingLinks
                 }
 
                 //undo guess
-                guesses.Pop();
+                _guesses.Pop();
             }
 
             //backtrack
@@ -147,16 +172,13 @@ namespace DancingLinks
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private Node GetColumnWithFewestRows()
         {
-            //todo:
-            //needs profiling/benchmark first!
-            //if i remember correctly, this loop runs a lot timewise (only in debug?)
-            //it is also crucial for minimizing solving time (random column is very slow)
-            //can columnRoot keep track of min column so we get O(1) retrieval instead of O(N)?
-            //maybe with a stack on every column hide, so we can backtrack, etc
-            var min = columnRoot.Right;
-            for (var colHead = min.Right; min.Count > 0 && colHead != columnRoot; colHead = colHead.Right)
+            var min = _columnRoot.Right;
+            for (var colHead = min.Right; min.Count > 0 && colHead != _columnRoot; colHead = colHead.Right)
             {
-                _counters.Increment("min.Count");
+                //todo: benchmark traversal count without .Count
+#if STATS && DEBUG
+                Stats.IncrementCounter("min.Count");
+#endif
                 if (colHead.Count < min.Count)
                     min = colHead;
             }
@@ -166,7 +188,7 @@ namespace DancingLinks
 
         private string ToStringThing()
         {
-            if (columnRoot == columnRoot.Right)
+            if (_columnRoot == _columnRoot.Right)
                 return string.Empty;
 
             var coordinateSet = new HashSet<(int row, int col)>();
@@ -175,9 +197,9 @@ namespace DancingLinks
 
             var minRow = _rows;
             var maxRow = 0;
-            var minCol = columnRoot.Left.ColId;
+            var minCol = _columnRoot.Left.ColId;
             var maxCol = 0;
-            for (var col = columnRoot.Right; col != columnRoot; col = col.Right)
+            for (var col = _columnRoot.Right; col != _columnRoot; col = col.Right)
             {
                 coordinateSet.Add((col.RowId, col.ColId));
                 rowSet.Add(col.RowId);

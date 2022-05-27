@@ -55,19 +55,26 @@ namespace Pentominoes
 
         public bool[][] ConstraintMatrix { get; set; }
         public int[][][] Solutions { get; private set; }
+        public int[][][] AllGuesses { get; private set; }
         public Stopwatch Stopwatch { get; private set; } = new();
 
         public void Solve(int maxSolutions)
         {
-            Stopwatch.Reset();
-            Stopwatch.Start();
+            Stopwatch.Restart();
 
             ConstraintMatrix = CreateConstraintMatrix();
             var toroidalLinkedList = new ToroidalLinkedList(ConstraintMatrix);
+#if ASCII && DEBUG
             var temp = ConstraintMatrix.ToStringThing();
+            Debugger.Break();
+#endif
             toroidalLinkedList.Solve(maxSolutions);
             Solutions = toroidalLinkedList
                 .Solutions
+                .Select(ParseNodeListSolution)
+                .ToArray();
+            AllGuesses = toroidalLinkedList
+                .AllGuesses
                 .Select(ParseNodeListSolution)
                 .ToArray();
 
@@ -152,6 +159,7 @@ namespace Pentominoes
         }
 
         public IEnumerable<string> SolutionStrings() => Solutions.Select(ToSolutionString);
+        public IEnumerable<string> AllGuessesStrings() => AllGuesses.Select(ToSolutionString);
 
         private int[][] ParseNodeListSolution(List<Node> nodes)
         {

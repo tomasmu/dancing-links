@@ -44,7 +44,24 @@ namespace DancingLinks
         public Node Down;
 
         public Node ColumnHeader;
+#if STATS && DEBUG
+        private int _count;
+        public int Count
+        {
+            get
+            {
+                Stats.IncrementCounter("get_Count");
+                return _count;
+            }
+            set
+            {
+                Stats.IncrementCounter("set_Count");
+                _count = value;
+            }
+        }
+#else
         public int Count;
+#endif
 
         public int RowId;
         public int ColId;
@@ -105,6 +122,10 @@ namespace DancingLinks
         {
             this.Right.Left = this.Left;
             this.Left.Right = this.Right;
+
+#if STATS && false
+            Stats.IncrementCounter(nameof(CoverHorizontalNode));
+#endif
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -112,6 +133,10 @@ namespace DancingLinks
         {
             this.Right.Left = this;
             this.Left.Right = this;
+
+#if STATS && false
+            Stats.IncrementCounter(nameof(UncoverHorizontalNode));
+#endif
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -121,6 +146,10 @@ namespace DancingLinks
             this.Up.Down = this.Down;
 
             ColumnHeader.Count--;
+
+#if STATS && false
+            Stats.IncrementCounter(nameof(CoverVerticalNode));
+#endif
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -129,7 +158,14 @@ namespace DancingLinks
             this.Down.Up = this;
             this.Up.Down = this;
 
+            //todo: is it faster to not have a counter and traverse the list every time?
+            //counter is modified 200+ million times, while min count is checked 4 million times
+            //(average number of rows)*4 million is probably more than 200 million, but worth a try
             ColumnHeader.Count++;
+
+#if STATS && false
+            Stats.IncrementCounter(nameof(UncoverVerticalNode));
+#endif
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
