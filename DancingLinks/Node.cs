@@ -158,9 +158,6 @@ namespace DancingLinks
             this.Down.Up = this;
             this.Up.Down = this;
 
-            //todo: is it faster to not have a counter and traverse the list every time?
-            //counter is modified 200+ million times, while min count is checked 4 million times
-            //(average number of rows)*4 million is probably more than 200 million, but worth a try
             ColumnHeader.Count++;
 
 #if STATS && false

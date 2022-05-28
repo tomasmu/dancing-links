@@ -148,13 +148,10 @@ namespace DancingLinks
                     dataCol.ColumnHeader.CoverColumnAndRows();
                 }
 
-                //todo: redo benchmark, performance for 1-N vs all solutions
-                //conditional search vs conditional return
                 Search();
-#if TESTKOSSA || true
                 if (Solutions.Count >= _maxSolutions)
                     return;
-#endif
+
                 //backtrack current guess
                 for (var dataCol = dataRow.Left; dataCol != dataRow; dataCol = dataCol.Left)
                 {
@@ -175,12 +172,12 @@ namespace DancingLinks
             var min = _columnRoot.Right;
             for (var colHead = min.Right; min.Count > 0 && colHead != _columnRoot; colHead = colHead.Right)
             {
-                //todo: benchmark traversal count without .Count
+                if (colHead.Count < min.Count)
+                    min = colHead;
+
 #if STATS && DEBUG
                 Stats.IncrementCounter("min.Count");
 #endif
-                if (colHead.Count < min.Count)
-                    min = colHead;
             }
 
             return min;
