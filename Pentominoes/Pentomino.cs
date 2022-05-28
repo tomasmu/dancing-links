@@ -161,10 +161,10 @@ namespace Pentominoes
         public IEnumerable<string> SolutionStrings() => Solutions.Select(ToSolutionString);
         public IEnumerable<string> AllGuessesStrings() => AllGuesses.Select(ToSolutionString);
 
-        private int[][] ParseNodeListSolution(List<Node> nodes)
+        private int[][] ParseNodeListSolution(int[] rowIds)
         {
-            var solutionRows = nodes
-                .Select(node => ConstraintMatrix[node.RowId]);
+            var solutionRows = rowIds
+                .Select(rowId => ConstraintMatrix[rowId]);
 
             var board = new int[_rows][];
             for (var row = 0; row < _rows; row++)

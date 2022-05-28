@@ -66,12 +66,12 @@ namespace DancingLinks
             return colRoot;
         }
 
-        private readonly Stack<Node> _guesses = new Stack<Node>();
-        public List<List<Node>> Solutions { get; set; } = new List<List<Node>>();
+        public List<int[]> Solutions { get; set; } = new List<int[]>();
+        private readonly Stack<int> _guesses = new Stack<int>();
+        public List<int[]> AllGuesses { get; set; } = new List<int[]>();
         private readonly Node _columnRoot;
         private int _maxSolutions;
         private Stopwatch _stopwatch = new Stopwatch();
-        public List<List<Node>> AllGuesses { get; set; } = new List<List<Node>>();
 
         public void Solve(int maxSolutions)
         {
@@ -103,16 +103,15 @@ namespace DancingLinks
 #if ASCII && DEBUG
             var toroidalAsciiArt = ToStringThing();
 #endif
-#if ALL_GUESSES && DEBUG
-            AllGuesses.Add(new List<Node>(_guesses));
+#if ALL_GUESSES
+            AllGuesses.Add(_guesses.ToArray());
 #endif
 
             //if column list is empty we have found a solution
             if (_columnRoot.Right == _columnRoot)
             {
-                //todo: _guesses can be reduced to row ids, benchmark
-                var solution = new List<Node>(_guesses);
-                Solutions.Add(solution);
+                var solution = _guesses.ToArray();
+                Solutions.Add(_guesses.ToArray());
 
                 return;
             }
@@ -137,7 +136,7 @@ namespace DancingLinks
                 Stats.IncrementCounter(nameof(_guesses));
 #endif
                 //guess row is part of the solution
-                _guesses.Push(dataRow);
+                _guesses.Push(dataRow.RowId);
 
                 //cover columns with intersecting rows
                 for (var dataCol = dataRow.Right; dataCol != dataRow; dataCol = dataCol.Right)

@@ -102,15 +102,15 @@ namespace SudokuSolver
             return constraintMatrix;
         }
 
-        private int[,] ParseNodeListSolution(List<Node> nodes)
+        private int[,] ParseNodeListSolution(int[] rowIds)
         {
-            var cellCount = nodes.Count;
+            var cellCount = rowIds.Length;
             int dimension = (int)Math.Sqrt(cellCount);
 
             var board = new int[dimension, dimension];
             for (var i = 0; i < cellCount; i++)
             {
-                int rowId = nodes[i].RowId;
+                int rowId = rowIds[i];
                 int row = rowId / (dimension * dimension);
                 int col = rowId / dimension % dimension;
                 int digit = rowId % dimension;
