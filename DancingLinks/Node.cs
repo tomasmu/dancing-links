@@ -31,7 +31,6 @@ namespace DancingLinks
 
     public static class NodeConstants
     {
-        //todo: remove
         public static int ROW_HEADER = -1;
         public static int COL_HEADER = -1;
     }
