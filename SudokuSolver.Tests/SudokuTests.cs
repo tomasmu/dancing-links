@@ -109,7 +109,7 @@ namespace SudokuSolver.Tests
         }
 
         [Fact]
-        public void Can_uniquely_solve_3x3_sudoku()
+        public void Can_uniquely_solve_9x9_sudoku()
         {
             var puzzle_worst_backtrack_case_17clues = "..............3.85..1.2.......5.7.....4...1...9.......5......73..2.1........4...9";
             var expectedResult                      = "987654321246173985351928746128537694634892157795461832519286473472319568863745219";

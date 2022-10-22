@@ -10,6 +10,7 @@
     -->
 
     <!--<DefineConstants>$(DefineConstants);STATS</DefineConstants>-->
+    <!--<DefineConstants>$(DefineConstants);COUNT</DefineConstants>-->
     <!--<DefineConstants>$(DefineConstants);ASCII</DefineConstants>-->
     <!--<DefineConstants>$(DefineConstants);ALL_GUESSES</DefineConstants>-->
     <!--<DefineConstants>$(DefineConstants);TESTKOSSA</DefineConstants>-->

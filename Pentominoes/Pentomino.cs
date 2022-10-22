@@ -66,7 +66,6 @@ namespace Pentominoes
             var toroidalLinkedList = new ToroidalLinkedList(ConstraintMatrix);
 #if ASCII && DEBUG
             var temp = ConstraintMatrix.ToStringThing();
-            Debugger.Break();
 #endif
             toroidalLinkedList.Solve(maxSolutions);
             Solutions = toroidalLinkedList

@@ -43,7 +43,7 @@ namespace DancingLinks
         public Node Down;
 
         public Node ColumnHeader;
-#if STATS && DEBUG
+#if STATS && COUNT && DEBUG
         private int _count;
         public int Count
         {

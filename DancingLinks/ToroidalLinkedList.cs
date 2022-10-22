@@ -94,9 +94,6 @@ namespace DancingLinks
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void Search()
         {
-#if DEBUG
-            //var hest = 1337;
-#endif
 #if STATS && DEBUG
             Stats.IncrementCounter(nameof(Search));
 #endif
@@ -111,7 +108,7 @@ namespace DancingLinks
             if (_columnRoot.Right == _columnRoot)
             {
                 var solution = _guesses.ToArray();
-                Solutions.Add(_guesses.ToArray());
+                Solutions.Add(solution);
 
                 return;
             }
@@ -169,9 +166,10 @@ namespace DancingLinks
         private Node GetColumnWithFewestRows()
         {
             var min = _columnRoot.Right;
-            for (var colHead = min.Right; min.Count > 0 && colHead != _columnRoot; colHead = colHead.Right)
+            //for (var colHead = min.Right; TempThing(colHead, _columnRoot, min); colHead = colHead.Right)
+            for (var colHead = min.Right; colHead != _columnRoot && min.Count > 0; colHead = colHead.Right)
             {
-                if (colHead.Count < min.Count)
+                    if (colHead.Count < min.Count)
                     min = colHead;
 
 #if STATS && DEBUG
@@ -180,6 +178,21 @@ namespace DancingLinks
             }
 
             return min;
+        }
+
+        private bool TemporaryPerformanceCheck(Node colHead, Node columnRoot, Node min)
+        {
+#if STATS && DEBUG
+            if (colHead != _columnRoot)
+                Stats.IncrementCounter("colHead != _columnRoot");
+            else
+                Stats.IncrementCounter("colHead == _columnRoot");
+            if (min.Count > 0)
+                Stats.IncrementCounter("min.Count > 0");
+            else
+                Stats.IncrementCounter("min.Count == 0");
+#endif
+            return colHead != _columnRoot && min.Count > 0;
         }
 
         private string ToStringThing()
