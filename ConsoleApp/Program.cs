@@ -89,10 +89,58 @@ namespace ConsoleApp
             //            Console.WriteLine($"total milliseconds: {totalTime.Elapsed.TotalMilliseconds}");
             //            Console.ReadKey();
 
-            var summary = BenchmarkRunner.Run<PentominoBenchmark>();
+            //var summary = BenchmarkRunner.Run<PentominoBenchmark>();
 
-            //var temp = new PentominoBenchmark();
-            //temp.SolvePentominoProblem();
+            var temp = new JesperBenchmark();
+            temp.SolvePentominoProblem();
+        }
+    }
+
+    [MemoryDiagnoser]
+    public class JesperBenchmark
+    {
+        [Benchmark]
+        public void SolvePentominoProblem()
+        {
+            var board = @"
+------
+------
+-o--o-
+------
+------
+------".ToRectangleMatrix('o').ToIntMatrix();
+            var L2 = @"
+oo
+o
+o";
+            var X = @"
+ o
+ooo
+ o";
+            var M = @"
+oo
+ oo
+  o";
+            var o = @"
+o";
+            var L1 = @"
+oo
+ o";
+            var F = @"
+ o
+ooo
+  o";
+            var C = @"
+o o
+ooo";
+            var J = @"
+  o
+o o
+ooo";
+            var pieces = new[] { L2, X, M, o, L1, F, J, C, }.ToRectangleMatrix('o');
+            var solver = new Pentomino(board, pieces);
+            solver.Solve(10_000);
+            var temp = solver.SolutionStrings().StringJoin(Environment.NewLine + Environment.NewLine);
         }
     }
 
