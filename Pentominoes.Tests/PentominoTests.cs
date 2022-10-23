@@ -163,7 +163,7 @@ xxxxo--".ToRectangleMatrix('o', 'x').ToIntMatrix();
                 .StringJoin(Environment.NewLine + Environment.NewLine);
 
             var numberOfConstraintColumns = solver.ConstraintMatrix[0].Length;
-            var expectedNumberOfConstraintColumns = pieceList.Length + (8 * 7) - (2 + 4) - (1+1+1);
+            var expectedNumberOfConstraintColumns = pieceList.Length + (8 * 7) - (2 + 4) - (1 + 1 + 1);
 
             //azerty
             firstTwoSolutions.Should().Be(expected);
@@ -273,10 +273,7 @@ ooo
             var V = @"
 o
 oo";
-            var testpiece = @"
-ooo-o
-o--ooo";
-            var board = new Dictionary<string, string>
+            var boards = new Dictionary<string, string>
             {
                 ["stair"] = @"
 -xxxxxx
@@ -284,8 +281,8 @@ o--ooo";
 ---xxxx
 ----xxx
 -----xx
-------x
-x------",
+-x----x
+-------",
                 ["9x3"] = @"
 ---
 ---
@@ -309,8 +306,9 @@ x------",
 -------
 -------
 -------",
-            }["temp"].ToRectangleMatrix('x').ToIntMatrix();
-            var pentominoes = new[] { L, L, L, L, N, T, V, testpiece }.ToRectangleMatrix('o');
+            };
+            var board = boards["stair"].ToRectangleMatrix('x').ToIntMatrix();
+            var pentominoes = new[] { L, L, L, L, N, T, V, }.ToRectangleMatrix('o');
 
             var solver = new Pentomino(board, pentominoes);
             solver.Solve(10_000);

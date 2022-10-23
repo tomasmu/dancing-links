@@ -91,7 +91,7 @@ namespace Pentominoes
                 var pieceRotations = _pieceList[pieceIndex].GetUniqueRotationsAndMirrors();
                 foreach (var piece in pieceRotations)
                 {
-                    var (pieceRows, pieceCols) = piece.GetSize();
+                    var (pieceRows, pieceCols) = piece.GetDimension();
                     for (var row = 0; row <= _rows - pieceRows; row++)
                     {
                         for (var col = 0; col <= _cols - pieceCols; col++)
