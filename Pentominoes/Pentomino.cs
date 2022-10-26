@@ -11,15 +11,15 @@ namespace Pentominoes
     {
         public Pentomino(
             int[][] board,
-            bool[][][] pieces)
+            IEnumerable<bool[][]> pieces)
         {
             _board = board;
             _rows = _board.Length;
             _cols = _board[0].Length;
             _cellCount = CellCount(_board);
 
-            _pieceList = pieces;
-            _numberOfPieces = _pieceList.Length;
+            _pieceList = pieces.ToList();
+            _numberOfPieces = _pieceList.Count();
 
             _constraintCount = _numberOfPieces + _cellCount;
 
@@ -45,7 +45,7 @@ namespace Pentominoes
         private readonly int _cols;
         private readonly int _cellCount;
 
-        private readonly bool[][][] _pieceList;
+        private readonly List<bool[][]> _pieceList;
         private readonly int _numberOfPieces;
 
         private readonly int _constraintCount;
@@ -91,7 +91,7 @@ namespace Pentominoes
                 var pieceRotations = _pieceList[pieceIndex].GetUniqueRotationsAndMirrors();
                 foreach (var piece in pieceRotations)
                 {
-                    var (pieceRows, pieceCols) = piece.GetDimension();
+                    var (pieceCols, pieceRows) = piece.GetDimension();
                     for (var row = 0; row <= _rows - pieceRows; row++)
                     {
                         for (var col = 0; col <= _cols - pieceCols; col++)

@@ -163,14 +163,14 @@ xxxxo--".ToRectangleMatrix('o', 'x').ToIntMatrix();
                 .StringJoin(Environment.NewLine + Environment.NewLine);
 
             var numberOfConstraintColumns = solver.ConstraintMatrix[0].Length;
-            var expectedNumberOfConstraintColumns = pieceList.Length + (8 * 7) - (2 + 4) - (1 + 1 + 1);
+            var expectedNumberOfConstraintColumns = pieceList.Count() + (8 * 7) - (2 + 4) - (1 + 1 + 1);
 
             //azerty
             firstTwoSolutions.Should().Be(expected);
             numberOfConstraintColumns.Should().Be(expectedNumberOfConstraintColumns);
         }
 
-        private bool[][][] GetPentominoPieces()
+        private IEnumerable<bool[][]> GetPentominoPieces()
         {
             var F = @"
  oo
@@ -236,7 +236,7 @@ oo
             var pentominoes = GetPentominoPieces();
             var correctNumberOfSolutions = 520;
             var correctNumberOfConstraintRows = 1568;
-            var correctNumberOfConstraintCols = pentominoes.Length + (8 * 8 - 4);
+            var correctNumberOfConstraintCols = pentominoes.Count() + (8 * 8 - 4);
 
             //act
             var solver = new Pentomino(board, pentominoes);
