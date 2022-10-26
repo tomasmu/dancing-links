@@ -20,6 +20,9 @@ namespace SudokuSolver
 
         public Sudoku(string board, ISudokuSerializer serializer = null)
         {
+            if (string.IsNullOrEmpty(board))
+                throw new Exception($"Board string must have at least one cell");
+
             if (serializer != null)
                 Serializer = serializer;
 

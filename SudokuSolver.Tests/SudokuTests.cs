@@ -27,7 +27,18 @@ namespace SudokuSolver.Tests
         [Fact]
         public void Can_find_both_solutions_to_ambiguous_9x9()
         {
-            var sudoku_ambiguous = "8356179426124957387..2386511..763825367582194258149367571926483486351279923874516";
+            var sudoku_ambiguous = @"
+835 617 942
+612 495 738
+7.. 238 651
+
+1.. 763 825
+367 582 194
+258 149 367
+
+571 926 483
+486 351 279
+923 874 516".RemoveWhiteSpace();
             var expectedNumberOfSolutions = 2;
 
             var sudoku = new Sudoku(sudoku_ambiguous);
@@ -44,8 +55,8 @@ namespace SudokuSolver.Tests
         {
             //highest number of givens for a minimal puzzle
             //by dobrichev, source: http://forum.enjoysudoku.com/high-clue-tamagotchis-t30020-135.html
-            var sudoku_9x9_40clues = "..........12.34567.345.6182..1.582.6..86....1.2...7.5...37.5.28.8..6.7..2.7.83615";
-            var expectedSolution   = "576821349812934567934576182741358296358692471629147853463715928185269734297483615";
+            var sudoku_9x9_40clues = @"..........12.34567.345.6182..1.582.6..86....1.2...7.5...37.5.28.8..6.7..2.7.83615";
+            var expectedSolution   = @"576821349812934567934576182741358296358692471629147853463715928185269734297483615";
 
             var sudoku = new Sudoku(sudoku_9x9_40clues);
             sudoku.Solve(int.MaxValue);
@@ -85,34 +96,51 @@ namespace SudokuSolver.Tests
         public void Can_solve_25x25_sudoku()
         {
             //by qiuyanzhe, source: http://forum.enjoysudoku.com/minimum-givens-on-larger-puzzles-t4801.html#p269747
-            //have not independently verified that the solution is correct and unique
             var sudoku_25x25_156clues = "123456789ABC.............6789ABC..................BC.............................................ONM.................ONMLKJIH23456789ABC..............789ABC...................C.............................................ONML................ONMLKJIHG3456789ABC...............89ABC.................................................................ONMLK...............ONMLKJIHGF456789ABC................9ABC.............................................O...................ONMLKJ..............ONMLKJIHGFE56789ABC.................ABC.............................................ON..................ONMLKJI.............ONMLKJIHGFED";
             var expectedSolution      = "123456789ABCONMLKJIHGFEDP6789ABCONMLKJIHGFEDP12345BCONMLKJIHGFEDP123456789ALKJIHGFEDP123456789ABCONMGFEDP123456789ABCONMLKJIH23456789ABCONMLKJIHGFEDP1789ABCONMLKJIHGFEDP123456CONMLKJIHGFEDP123456789ABKJIHGFEDP123456789ABCONMLFEDP123456789ABCONMLKJIHG3456789ABCONMLKJIHGFEDP1289ABCONMLKJIHGFEDP1234567ONMLKJIHGFEDP123456789ABCJIHGFEDP123456789ABCONMLKEDP123456789ABCONMLKJIHGF456789ABCONMLKJIHGFEDP1239ABCONMLKJIHGFEDP12345678NMLKJIHGFEDP123456789ABCOIHGFEDP123456789ABCONMLKJDP123456789ABCONMLKJIHGFE56789ABCONMLKJIHGFEDP1234ABCONMLKJIHGFEDP123456789MLKJIHGFEDP123456789ABCONHGFEDP123456789ABCONMLKJIP123456789ABCONMLKJIHGFED";
 
             var sudoku = new Sudoku(sudoku_25x25_156clues);
-            sudoku.Solve(1);
+            sudoku.Solve(2);
 
             sudoku.IsSolved.Should().BeTrue();
             sudoku.SerializedSolution.Should().Be(expectedSolution);
         }
 
-        [Theory]
-        [InlineData("")]
-        [InlineData(".")]
+        [Fact]
 
-        public void Solve_0x0_and_1x1_sudoku(string puzzle)
+        public void Solve_1x1_sudoku()
         {
+            var puzzle = ".";
             var sudoku = new Sudoku(puzzle);
             sudoku.Solve(int.MaxValue);
 
             sudoku.IsSolved.Should().BeTrue();
+            sudoku.SerializedSolution.Should().Be("1");
         }
 
         [Fact]
         public void Can_uniquely_solve_9x9_sudoku()
         {
-            var puzzle_worst_backtrack_case_17clues = "..............3.85..1.2.......5.7.....4...1...9.......5......73..2.1........4...9";
-            var expectedResult                      = "987654321246173985351928746128537694634892157795461832519286473472319568863745219";
+            var puzzle_worst_backtrack_case_17clues = @"
+.........
+.....3.85
+..1.2....
+...5.7...
+..4...1..
+.9.......
+5......73
+..2.1....
+....4...9".RemoveWhiteSpace();
+            var expectedResult = @"
+987654321
+246173985
+351928746
+128537694
+634892157
+795461832
+519286473
+472319568
+863745219".RemoveWhiteSpace();
 
             var sudoku = new Sudoku(puzzle_worst_backtrack_case_17clues);
             sudoku.Solve(int.MaxValue);
