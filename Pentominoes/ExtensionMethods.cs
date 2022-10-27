@@ -38,7 +38,7 @@ namespace Pentominoes
 
         public static bool[][][] ToCuboidMatrix(this string stringLiteral, char emptyChar)
         {
-            var singleNewLinePattern = @"\r\n|\r|\n";
+            var singleNewLinePattern = @"(\r\n){1}|\r{1}|\n{1}";
             var doubleNewLinePattern = @"(\r\n){2}|\r{2}|\n{2}";
             var jaggedArray = stringLiteral
                 .Trim()
@@ -49,9 +49,7 @@ namespace Pentominoes
                     .ToArray())
                 .ToArray();
 
-            var yLen = jaggedArray.Length;
-            var xLen = jaggedArray.Max(array => array.Length);
-            var zLen = jaggedArray.Max(array => array.Max(arr => arr.Length));
+            var (xLen, yLen, zLen) = jaggedArray.GetMaxDimension();
 
             //create cuboid array
             var cuboidArray = new bool[yLen][][];
@@ -432,5 +430,12 @@ namespace Pentominoes
 
         public static (int x, int y, int z) GetDimension<T>(this T[][][] matrix) =>
             (x: matrix[0].Length, y: matrix.Length, z: matrix[0][0].Length);
+
+        public static (int x, int y, int z) GetMaxDimension<T>(this T[][][] matrix) =>
+            (
+                x: matrix.Max(array => array.Length),
+                y: matrix.Length,
+                z: matrix.Max(array => array.Max(arr => arr.Length))
+            );
     }
 }
