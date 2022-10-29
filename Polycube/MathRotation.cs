@@ -125,7 +125,7 @@ namespace Polycube
             //hack: easiest way of getting all unique matrices :-)
             var unique = rotationList
                 .ToJsonArray()
-                .ToHashSet()
+                .Distinct()
                 .FromJsonArray<int[,]>();
 
             return unique;
@@ -141,6 +141,20 @@ namespace Polycube
                 { 0, 0, 1, dz },
               //{ 0, 0, 0,  1 },
             };
+
+            return translation;
+        }
+
+        public static int[,] GetTranslationMatrixTest(int[] offset)
+        {
+            var ys = offset.Length;
+            var xs = offset.Length + 1;
+            var translation = new int[ys,xs];
+            for (int y = 0; y < ys; y++)
+            {
+                translation[y, y] = 1;
+                translation[y, xs - 1] = offset[y];
+            }
 
             return translation;
         }

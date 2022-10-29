@@ -7,13 +7,13 @@ namespace Polycube
 {
     public static class ArrayExtensionMethods
     {
-        public static (int x, int y) GetLengths(this int[,] source) =>
+        public static (int x, int y) GetLengths<T>(this T[,] source) =>
             (
                 x: source.GetLength(1),
                 y: source.GetLength(0)
             );
 
-        public static (int x, int y, int z) GetLengths(this int[,,] source) =>
+        public static (int x, int y, int z) GetLengths<T>(this T[,,] source) =>
             (
                 x: source.GetLength(1),
                 y: source.GetLength(0),
@@ -23,6 +23,7 @@ namespace Polycube
         public static string ToJson<T>(this T[] source) => JsonConvert.SerializeObject(source);
         public static string ToJson<T>(this T[,] source) => JsonConvert.SerializeObject(source);
         public static string ToJson<T>(this T[,,] source) => JsonConvert.SerializeObject(source);
+        public static string ToJson<T>(this IEnumerable<T[,]> source) => JsonConvert.SerializeObject(source);
         public static IEnumerable<string> ToJsonArray<T>(this IEnumerable<T[,]> source) => source.Select(JsonConvert.SerializeObject);
 
         public static T FromJson<T>(this string source) => JsonConvert.DeserializeObject<T>(source);
@@ -106,6 +107,33 @@ namespace Polycube
             var translation = MathRotation.GetTranslationMatrix(dx, dy, dz);
             var result = translation.Multiply(matrix);
             return result;
+        }
+
+        public static IEnumerable<IEnumerable<int[,]>> GetUniqueRotations(this IEnumerable<int[,]> piecePoints)
+        {
+            var rotatedPieces = new List<IEnumerable<int[,]>>();
+            foreach (var rot in MathRotation.GetUniqueRotationMatrices())
+            {
+                var rotatedPiece = piecePoints
+                    .Select(point => rot.Multiply(point))
+                    .TranslateToOrigo()
+                    //sorting because [[0,1,2],[3,4,5]] == [[3,4,5],[0,1,2]]
+                    //todo: there must be a better way
+                    .OrderBy(p => Enumerable
+                        .Range(0, p.GetLength(0))
+                        .Select(n => p[n, 0])
+                        .StringJoin(","));
+
+                rotatedPieces.Add(rotatedPiece);
+            }
+
+            //hack: well, it works :)
+            var unique = rotatedPieces
+                .Select(points => points.ToJson())
+                .Distinct()
+                .Select(str => str.FromJson<IEnumerable<int[,]>>());
+
+            return unique;
         }
 
         //todo: perhaps throw away

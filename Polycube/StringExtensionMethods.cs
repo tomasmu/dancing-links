@@ -21,8 +21,11 @@ namespace Polycube
         public static string TrimNewLine(this string input) =>
             input.Trim('\r', '\n');
 
-        public static string StringJoin(this IEnumerable<string> values, string separator) =>
+        public static string StringJoin<T>(this IEnumerable<T> values, string separator) =>
             string.Join(separator, values);
+
+        public static bool IsEmptyOrWhiteSpace(this char chr) =>
+            chr == 0 || char.IsWhiteSpace(chr);
 
         //todo: move
         //todo: don't use
@@ -36,7 +39,7 @@ namespace Polycube
         //            .ToArray())
         //        .ToArray();
 
-        public static IEnumerable<int[,]> ToCoordinates(this string piece, char blankChar)
+        public static IEnumerable<int[,]> ToPoints(this string piece, char ignoreChar)
         {
             var doubleNewLine = @"(\r\n){2}|\r{2}|\n{2}";
             var singleNewLine = @"(\r\n){1}|\r{1}|\n{1}";
@@ -55,7 +58,7 @@ namespace Polycube
                 {
                     for (int z = 0; z < xs[x].Length; z++)
                     {
-                        if (xs[x][z] != blankChar)
+                        if (xs[x][z] != ignoreChar)
                         {
                             yield return new int[,] { { x }, { y }, { z } };    
                         }

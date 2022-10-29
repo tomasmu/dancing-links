@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Xunit;
 
@@ -37,7 +38,7 @@ namespace Polycube.Tests
         }
 
         [Fact]
-        public void StringJoin()
+        public void StringJoinTest()
         {
             var result = new string[] { "a", "b" }.StringJoin(", ");
 
@@ -45,7 +46,7 @@ namespace Polycube.Tests
         }
 
         [Fact]
-        public void RegexSplit()
+        public void RegexSplitTest()
         {
             var result = "first, second".RegexSplit(@",\s");
 
@@ -88,7 +89,7 @@ namespace Polycube.Tests
 
         //todo: move
         [Fact]
-        public void StringToPieceCoordinates()
+        public void StringToPiecePoints()
         {
             //this is a 3D piece
             //a "T" in the bottom layer
@@ -111,7 +112,7 @@ TTTT
 
 -I
 -I"
-.ToCoordinates('-')
+.ToPoints('-')
 .ToJsonArray()
 .StringJoin(",");
 
@@ -129,6 +130,24 @@ TTTT
 .RegexRemove(newLine_Whitespace_Comment_Pattern);
 
             piece.Should().BeEquivalentTo(expected);
+        }
+
+        [Fact]
+        public void CharIsEmptyOrWhiteSpaceTest()
+        {
+            var emptyOrWhiteSpace = new char[]
+            {
+                (char)0,
+                ' ',
+                '\t',
+                '\r',
+                '\n',
+                '\0',
+            };
+
+            var result = emptyOrWhiteSpace.Select(chr => chr.IsEmptyOrWhiteSpace());
+
+            result.All(boole => boole).Should().BeTrue();
         }
     }
 }

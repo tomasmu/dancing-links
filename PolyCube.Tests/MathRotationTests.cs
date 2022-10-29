@@ -238,6 +238,67 @@ namespace Polycube.Tests
         }
 
         [Theory]
+        //single cubie 1x1x1
+        [InlineData(@"
+S", 1)]
+        //cube 2x2x2
+        [InlineData(@"
+BB
+BB
+
+BB
+BB", 1)]
+        //line 1x1x3
+        [InlineData(@"
+IIII", 3)]
+        //2-layer 2x2x4
+        [InlineData(@"
+IIII
+IIII
+
+IIII
+IIII", 3)]
+        //square 1x2x2
+        [InlineData(@"
+SS
+SS
+", 3)]
+        //rectangle 1x2x3
+        [InlineData(@"
+RRR
+RRR", 6)]
+        //3-layer rectangular cuboid 3x2x4
+        [InlineData(@"
+RRRR
+RRRR
+
+RRRR
+RRRR
+
+RRRR
+RRRR", 6)]
+        //tripod
+        [InlineData(@"
+TT
+T
+
+T", 8)]
+        //V
+        [InlineData(@"
+VV
+V", 12)]
+        //L
+        [InlineData(@"
+LLL
+L", 24)]
+        public void Rotations_Unique(string piece, int expectedUnique)
+        {
+            var rotations = piece.ToPoints('-').GetUniqueRotations();
+
+            rotations.Count().Should().Be(expectedUnique);
+        }
+
+        [Theory]
         [InlineData(  0,   0,   0,  2,  3,  4)]
         [InlineData(  0,   0,  90, -3,  2,  4)]
         [InlineData(  0,   0, 180, -2, -3,  4)]
@@ -313,7 +374,7 @@ namespace Polycube.Tests
         }
 
         [Fact]
-        public void TranslateMatrix()
+        public void TranslatePoint()
         {
             var point = new int[,] { { 2 }, { 3 }, { 4 } };
             var translated = point.Translate(10, -20, 30);
@@ -321,6 +382,52 @@ namespace Polycube.Tests
             var expected = new int[,] { { 2+10 }, { 3-20 }, { 4+30 } };
 
             translated.Should().BeEquivalentTo(expected);
+        }
+
+        [Fact]
+        public void Compare_TranslationMatrix()
+        {
+            var offset = new int[] { 10, -20, 30 };
+
+            var translate3D = MathRotation.GetTranslationMatrix(offset[0], offset[1], offset[2]);
+            var translateXD = MathRotation.GetTranslationMatrixTest(offset);
+
+            translateXD.Should().BeEquivalentTo(translate3D);
+        }
+
+        [Fact]
+        public void TranslationMatrix_2D()
+        {
+            var offset = new int[] { 10, -20 };
+
+            var result = MathRotation.GetTranslationMatrixTest(offset);
+
+            var expected = new int[,]
+            {
+                { 1, 0,  10 },
+                { 0, 1, -20 },
+              //{ 0, 0,   1 },
+            };
+
+            result.Should().BeEquivalentTo(expected);
+        }
+
+        [Fact]
+        public void TranslationMatrix_3D()
+        {
+            var offset = new int[] { 10, -20, 30 };
+
+            var result = MathRotation.GetTranslationMatrixTest(offset);
+
+            var expected = new int[,]
+            {
+                { 1, 0, 0,  10 },
+                { 0, 1, 0, -20 },
+                { 0, 0, 1,  30 },
+              //{ 0, 0, 0,   1 },
+            };
+
+            result.Should().BeEquivalentTo(expected);
         }
 
         [Fact]
@@ -370,7 +477,8 @@ namespace Polycube.Tests
             };
 
             var min = points.GetAxesMaxValues();
-
+            
+            min.Length.Should().Be(2);
             min[0].Should().Be(1);
             min[1].Should().Be(2);
         }
@@ -388,13 +496,14 @@ namespace Polycube.Tests
 
             var min = points.GetAxesMinValues();
 
+            min.Length.Should().Be(3);
             min[0].Should().Be(-1);
             min[1].Should().Be(-2);
             min[2].Should().Be(-3);
         }
 
         [Fact]
-        public void TranslateToOrigo()
+        public void TranslateToOrigo_Test()
         {
             var points = new List<int[,]> {
                 new int[,] { { -1 }, {  0 }, {  0 } },
