@@ -18,6 +18,9 @@ namespace Polycube
         public static string[] RegexSplit(this string input, string pattern, RegexOptions options) =>
             Regex.Split(input, pattern, options);
 
+        public static bool RegexIsMatch(this string input, string pattern) =>
+            Regex.IsMatch(input, pattern);
+
         public static string TrimNewLine(this string input) =>
             input.Trim('\r', '\n');
 
@@ -39,20 +42,18 @@ namespace Polycube
         //            .ToArray())
         //        .ToArray();
 
+        //todo: these should not be extension methods, parser class?
         public static IEnumerable<int[,]> ToPoints(this string piece, char ignoreChar)
         {
             var doubleNewLine = @"(\r\n){2}|\r{2}|\n{2}";
             var singleNewLine = @"(\r\n){1}|\r{1}|\n{1}";
             var ys = piece
                 .Trim()
-                .RegexSplit(doubleNewLine, RegexOptions.ExplicitCapture)
-                .ToArray();
+                .RegexSplit(doubleNewLine, RegexOptions.ExplicitCapture);
             
             for (int y = 0; y < ys.Length; y++)
             {
-                var xs = ys[y]
-                    .RegexSplit(singleNewLine, RegexOptions.ExplicitCapture)
-                    .ToArray();
+                var xs = ys[y].RegexSplit(singleNewLine, RegexOptions.ExplicitCapture);
                 
                 for (int x = 0; x < xs.Length; x++)
                 {
@@ -65,6 +66,40 @@ namespace Polycube
                     }
                 }
             }
+        }
+
+        public static bool[,,] ToGrid(this string gridString, char blockedChar)
+        {
+            var doubleNewLine = @"(\r\n){2}|\r{2}|\n{2}";
+            var singleNewLine = @"(\r\n){1}|\r{1}|\n{1}";
+
+            var gridArray = gridString
+                .Trim()
+                .RegexSplit(doubleNewLine, RegexOptions.ExplicitCapture)
+                .Select(y => y
+                    .RegexSplit(singleNewLine, RegexOptions.ExplicitCapture)
+                        .Select(x => x.ToArray())
+                    .ToArray())
+                .ToArray();
+
+            var yLength = gridArray.Length;
+            var xLength = gridArray.Max(y => y.Length);
+            var zLength = gridArray.Max(y => y.Max(x => x.Length));
+
+            var grid = new bool[yLength, xLength, zLength];
+            for (int y = 0; y < yLength; y++)
+            {
+                for (int x = 0; x < xLength; x++)
+                {
+                    for (int z = 0; z < zLength; z++)
+                    {
+                        if (gridArray[y][x][z] == blockedChar)
+                            grid[y, x, z] = true;
+                    }
+                }
+            }
+
+            return grid;
         }
     }
 }

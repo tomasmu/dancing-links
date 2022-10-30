@@ -24,11 +24,12 @@ namespace Polycube.Tests
             //20+3=23
 
             var grid_23cubies = new bool[2, 3, 4];
-            grid_23cubies[1, 2, 3] = true;
+            grid_23cubies[0, 0, 0] = true;
             //2*3*4 - 1 = 23
+            var cuboid = new Cuboid(grid_23cubies);
 
             //assert: does not throw
-            var polycube = new Polycube(grid_23cubies, pieces);
+            var polycube = new Polycube(cuboid, pieces);
         }
 
         [Fact]
@@ -44,8 +45,9 @@ namespace Polycube.Tests
 
             var grid_23cubies = new bool[2, 3, 4];
             grid_23cubies[1, 2, 3] = true;
+            var cuboid = new Cuboid(grid_23cubies);
 
-            Action create = () => new Polycube(grid_23cubies, pieces);
+            Action create = () => new Polycube(cuboid, pieces);
             create.Should().Throw<ArgumentException>().WithMessage("23 grid cubies != 22 piece cubies (19+3)");
         }
 

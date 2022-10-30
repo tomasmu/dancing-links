@@ -10,59 +10,39 @@ namespace Polycube
 {
     public class Polycube
     {
-        //todo: class Grid
-        public Polycube(bool[,,] grid, IEnumerable<Piece> pieces)
+        public Cuboid Cuboid { get; }
+        public Piece[] Pieces { get; }
+
+        public Polycube(Cuboid cuboid, IEnumerable<Piece> pieces)
         {
-            Grid = grid;
+            Cuboid = cuboid;
             Pieces = pieces.ToArray();
 
-            _gridCubieCount = CountGridCubies(grid);
             _pieceCubieCount = pieces.Sum(p => p.Points.Count());
             ThrowIfExactCoverIsImpossible();
 
             _pieceCount = pieces.Count();
 
-            _constraintColumnCount = _pieceCount + _gridCubieCount;
+            _constraintColumnCount = _pieceCount + Cuboid.CubieCount;
 
             CreateConstraintMatrix(pieces);
         }
 
         public void ThrowIfExactCoverIsImpossible()
         {
-            if (_gridCubieCount != _pieceCubieCount)
+            if (Cuboid.CubieCount != _pieceCubieCount)
             {
                 var pieceCounts = Pieces.Select(p => p.Points.Count().ToString()).StringJoin("+");
-                throw new ArgumentException($"{_gridCubieCount} grid cubies != {_pieceCubieCount} piece cubies ({pieceCounts})");
+                throw new ArgumentException($"{Cuboid.CubieCount} grid cubies != {_pieceCubieCount} piece cubies ({pieceCounts})");
             }
         }
 
         private bool[][] _constraintMatrix;
         private List<Piece> _constraintPieces;
         private List<(int x, int y, int z)> _constraintOffsets;
-        private readonly Piece[][] _allPieceRotations;
-        private readonly int _gridCubieCount;
         private readonly int _pieceCubieCount;
         private readonly int _pieceCount;
         private readonly int _constraintColumnCount;
-
-        public int CountGridCubies(bool[,,] grid)
-        {
-            var gridCubies = 0;
-            var len = grid.GetLengths();
-            for (int y = 0; y < len.y; y++)
-            {
-                for (int x = 0; x < len.x; x++)
-                {
-                    for (int z = 0; z < len.z; z++)
-                    {
-                        if (!grid[y, x, z])
-                            gridCubies++;
-                    }
-                }
-            }
-
-            return gridCubies;
-        }
 
         public void CreateConstraintMatrix(IEnumerable<Piece> pieces)
         {
@@ -70,21 +50,20 @@ namespace Polycube
             var constraintPieces = new List<Piece>();
             var constraintOffsets = new List<(int x, int y, int z)>();
 
-            var gridLen = Grid.GetLengths();
             for (int pieceIndex = 0; pieceIndex < pieces.Count(); pieceIndex++)
             {
                 var pieceRotations = Pieces[pieceIndex].GetRotations();
                 foreach (var rotatedPiece in pieceRotations)
                 {
                     var pieceLen = rotatedPiece.GetDimension();
-                    for (int yGrid = 0; yGrid <= gridLen.y - pieceLen.y; yGrid++)
+                    for (int yGrid = 0; yGrid <= Cuboid.YLength - pieceLen.y; yGrid++)
                     {
-                        for (int xGrid = 0; xGrid <= gridLen.x - pieceLen.x; xGrid++)
+                        for (int xGrid = 0; xGrid <= Cuboid.XLength - pieceLen.x; xGrid++)
                         {
-                            for (int zGrid = 0; zGrid <= gridLen.z - pieceLen.z; zGrid++)
+                            for (int zGrid = 0; zGrid <= Cuboid.ZLength - pieceLen.z; zGrid++)
                             {
                                 var gridPoint = (xGrid, yGrid, zGrid);
-                                var constraintRow = CreateConstraintRow(pieceIndex, rotatedPiece, gridPoint, gridLen);
+                                var constraintRow = CreateConstraintRow(pieceIndex, rotatedPiece, gridPoint);
                                 if (constraintRow != null)
                                 {
                                     constraintRows.Add(constraintRow);
@@ -102,7 +81,7 @@ namespace Polycube
             _constraintOffsets = constraintOffsets;
         }
 
-        private bool[] CreateConstraintRow(int pieceIndex, Piece piece, (int x, int y, int z) grid, (int x, int y, int z) gridLen)
+        private bool[] CreateConstraintRow(int pieceIndex, Piece piece, (int x, int y, int z) grid)
         {
             //todo: in order to handle blocked cubies in the grid
             //i need to create an index map of some sort i think?
@@ -112,10 +91,10 @@ namespace Polycube
             foreach (var point in piece.Points)
             {
                 var (x, y, z) = (grid.x + point[0, 0], grid.y + point[1, 0], grid.z + point[2, 0]);
-                if (Grid[y, x, z])
+                if (Cuboid[y, x, z])
                     return null;
 
-                var constraintColumn = (y * gridLen.x * gridLen.z) + (x * gridLen.z) + z;
+                var constraintColumn = Cuboid.GetMapped(x, y, z);
                 constraintRow[_pieceCount + constraintColumn] = true;
             }
 
@@ -123,6 +102,8 @@ namespace Polycube
         }
 
         public List<char[,,]> Solutions { get; set; }
+        public IEnumerable<string> SolutionsAsStrings => Solutions
+            .Select(grid => GridToString(grid));
 
         public void Solve(int maxSolutions)
         {
@@ -141,8 +122,14 @@ namespace Polycube
             var solutionPieces = rowIds.Select(rowId => _constraintPieces[rowId]).ToList();
             var solutionOffsets = rowIds.Select(rowId => _constraintOffsets[rowId]).ToList();
 
-            var (xLen, yLen, zLen) = Grid.GetLengths();
-            var grid = new char[yLen, xLen, zLen];
+            var grid = new char[Cuboid.YLength, Cuboid.XLength, Cuboid.ZLength];
+            var blockedChar = '-';
+            for (int y = 0; y < Cuboid.YLength; y++)
+                for (int x = 0; x < Cuboid.XLength; x++)
+                    for (int z = 0; z < Cuboid.ZLength; z++)
+                        if (Cuboid.Grid[y, x, z])
+                            grid[y, x, z] = blockedChar;
+            
             for (int i = 0; i < solutionPieces.Count; i++)
             {
                 foreach (var point in solutionPieces[i].Points)
@@ -153,22 +140,19 @@ namespace Polycube
                 }
             }
 
-            var hest = GridToString(grid);
-            Debug.WriteLine(hest);
             return grid;
         }
 
-        private string GridToString(char[,,] grid)
+        public string GridToString(char[,,] grid)
         {
             var sb = new StringBuilder();
-            var (xLen, yLen, zLen) = Grid.GetLengths();
-            for (int y = 0; y < yLen; y++)
+            for (int y = 0; y < Cuboid.YLength; y++)
             {
                 var indent = new string(' ', y);
-                for (int x = 0; x < xLen; x++)
+                for (int x = 0; x < Cuboid.XLength; x++)
                 {
                     sb.Append($"{indent}[");
-                    for (int z = 0; z < zLen; z++)
+                    for (int z = 0; z < Cuboid.ZLength; z++)
                     {
                         sb.Append(grid[y, x, z]);
                     }
@@ -180,8 +164,5 @@ namespace Polycube
             var result = sb.ToString();
             return result;
         }
-
-        public bool[,,] Grid { get; }
-        public Piece[] Pieces { get; }
     }
 }
