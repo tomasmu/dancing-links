@@ -195,7 +195,7 @@ ZZ
             woodenPuzzle.Solutions.Count.Should().BeGreaterThanOrEqualTo(1);
         }
 
-        [Fact]
+        [Fact(Skip = "this test takes an hour to run")]
         public void Solve_Bedlam_cube()
         {
             var grid = new bool[4, 4, 4];
@@ -301,10 +301,9 @@ MM
             bedlam.Solutions.Count.Should().Be(24 * 19186);
         }
 
-        [Fact]
+        [Fact(Skip = "this test takes an hour to run")]
         public void Solve_Tetris_cube()
         {
-            var grid = new bool[4, 4, 4];
             var pieces = new string[]
             {
 @"
