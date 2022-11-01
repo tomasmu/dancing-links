@@ -7,31 +7,24 @@ namespace Polycube
 {
     public static class ArrayExtensionMethods
     {
-        public static (int x, int y) GetLengths<T>(this T[,] source) =>
-            (
-                x: source.GetLength(1),
-                y: source.GetLength(0)
-            );
+        public static Vector GetLengths<T>(this T[,] source) =>
+            new(source.GetLength(1), source.GetLength(0));
 
-        public static (int x, int y, int z) GetLengths<T>(this T[,,] source) =>
-            (
-                x: source.GetLength(1),
-                y: source.GetLength(0),
-                z: source.GetLength(2)
-            );
+        public static Vector GetLengths<T>(this T[,,] source) =>
+            new(source.GetLength(1), source.GetLength(0), source.GetLength(2));
 
+        public static string ToJson<T>(this T source) => JsonConvert.SerializeObject(source);
         public static string ToJson<T>(this T[] source) => JsonConvert.SerializeObject(source);
         public static string ToJson<T>(this T[,] source) => JsonConvert.SerializeObject(source);
         public static string ToJson<T>(this T[,,] source) => JsonConvert.SerializeObject(source);
         public static string ToJson<T>(this IEnumerable<T[,]> source) => JsonConvert.SerializeObject(source);
+        public static IEnumerable<string> ToJsonArray<T>(this IEnumerable<Vector> source) => source.Select(JsonConvert.SerializeObject);
         public static IEnumerable<string> ToJsonArray<T>(this IEnumerable<T[,]> source) => source.Select(JsonConvert.SerializeObject);
 
         public static T FromJson<T>(this string source) => JsonConvert.DeserializeObject<T>(source);
         public static IEnumerable<T> FromJsonArray<T>(this IEnumerable<string> source) => source.Select(JsonConvert.DeserializeObject<T>);
 
         //todo: move
-        //todo: change int[,] to Matrix/Point classes?
-        //todo: create MultiplyPoint so we can multiply with [x,y,z] instead of [[x],[y],[z]]?
         public static int[,] Multiply(this int[,] a, int[,] b)
         {
             //A might have more columns than B has rows
@@ -95,43 +88,39 @@ namespace Polycube
             return product;
         }
 
-        public static int[,] Rotate(this int[,] matrix, int x, int y, int z)
+        public static IEnumerable<IEnumerable<Vector>> GetUniqueRotations(this IEnumerable<Vector> piecePoints)
         {
-            var rotation = MathRotation.GetRotationMatrix(x, y, z);
-            var result = rotation.Multiply(matrix);
-            return result;
-        }
-
-        public static int[,] Translate(this int[,] matrix, int dx, int dy, int dz)
-        {
-            var translation = MathRotation.GetTranslationMatrix(dx, dy, dz);
-            var result = translation.Multiply(matrix);
-            return result;
-        }
-
-        public static IEnumerable<IEnumerable<int[,]>> GetUniqueRotations(this IEnumerable<int[,]> piecePoints)
-        {
-            var rotatedPieces = new List<IEnumerable<int[,]>>();
+            var rotatedPieces = new List<IEnumerable<Vector>>();
             foreach (var rot in MathRotation.GetUniqueRotationMatrices())
             {
                 var rotatedPiece = piecePoints
-                    .Select(point => rot.Multiply(point))
+                    .Select(point => rot * point)
                     .TranslateToOrigo()
                     //sorting because [[0,1,2],[3,4,5]] == [[3,4,5],[0,1,2]]
                     //todo: there must be a better way
                     .OrderBy(p => Enumerable
-                        .Range(0, p.GetLength(0))
-                        .Select(n => p[n, 0])
-                        .StringJoin(","));
+                        .Range(0, p.Length)
+                        .Select(n => p[n])
+                        .StringJoin(","))
+                    .ToList();
 
                 rotatedPieces.Add(rotatedPiece);
             }
 
-            //hack: well, it works :)
+            //hack: well, ugly but works.. :)
             var unique = rotatedPieces
-                .Select(points => points.ToJson())
+                .Select(points => points
+                    .Select(p => p.ToString())
+                    .StringJoin(";"))
                 .Distinct()
-                .Select(str => str.FromJson<IEnumerable<int[,]>>());
+                .Select(strPoints => strPoints
+                    .Split(';')
+                    .Select(strPoint =>
+                        new Vector(strPoint
+                            .RegexRemove(@"[\[\]]")
+                            .Split(',')
+                            .Select(int.Parse)
+                            .ToArray())));
 
             return unique;
         }
@@ -144,17 +133,16 @@ namespace Polycube
         //    return result;
         //}
 
-        public static IEnumerable<int[,]> TranslateToOrigo(this IEnumerable<int[,]> points)
+        public static IEnumerable<Vector> TranslateToOrigo(this IEnumerable<Vector> points)
         {
-            var xyz = points.GetAxesMinValues();
-            return points.Select(point => point.Translate(-xyz[0], -xyz[1], -xyz[2]));
+            var min = points.GetAxesMinValues();
+            return points.Select(point => point - min);
         }
 
-        //todo: vertical matrices for points should probably be made horizontal?
-        public static int[] GetAxesMinValues(this IEnumerable<int[,]> points)
+        public static Vector GetAxesMinValues(this IEnumerable<Vector> points)
         {
-            var yLen = points.First().GetLengths().y;
-            var min = new int[yLen];
+            var yLen = points.First().Length;
+            var min = new Vector(yLen);
             for (int i = 0; i < yLen; i++)
             {
                 min[i] = int.MaxValue;
@@ -164,9 +152,9 @@ namespace Polycube
             {
                 for (int i = 0; i < yLen; i++)
                 {
-                    if (point[i, 0] < min[i])
+                    if (point[i] < min[i])
                     {
-                        min[i] = point[i, 0];
+                        min[i] = point[i];
                     }
                 }
             }
@@ -174,27 +162,27 @@ namespace Polycube
             return min;
         }
 
-        public static int[] GetAxesMaxValues(this IEnumerable<int[,]> points)
+        public static Vector GetAxesMaxValues(this IEnumerable<Vector> points)
         {
-            var yLen = points.First().GetLengths().y;
-            var min = new int[yLen];
+            var yLen = points.First().Length;
+            var max = new Vector(yLen);
             for (int i = 0; i < yLen; i++)
             {
-                min[i] = int.MinValue;
+                max[i] = int.MinValue;
             }
 
             foreach (var point in points)
             {
                 for (int i = 0; i < yLen; i++)
                 {
-                    if (point[i, 0] > min[i])
+                    if (point[i] > max[i])
                     {
-                        min[i] = point[i, 0];
+                        max[i] = point[i];
                     }
                 }
             }
 
-            return min;
+            return max;
         }
     }
 }

@@ -12,8 +12,8 @@ namespace Polycube.Tests
 
             var dimensions = matrix.GetLengths();
 
-            dimensions.x.Should().Be(7);
-            dimensions.y.Should().Be(5);
+            dimensions.X.Should().Be(7);
+            dimensions.Y.Should().Be(5);
         }
 
         [Fact]
@@ -23,9 +23,9 @@ namespace Polycube.Tests
 
             var dimensions = matrix.GetLengths();
 
-            dimensions.x.Should().Be(7);
-            dimensions.y.Should().Be(5);
-            dimensions.z.Should().Be(11);
+            dimensions.X.Should().Be(7);
+            dimensions.Y.Should().Be(5);
+            dimensions.Z.Should().Be(11);
         }
 
         [Fact]

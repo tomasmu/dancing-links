@@ -17,12 +17,9 @@ namespace Polycube.Tests
             grid[0, 0, 0] = true;   //block one
             var cuboid = new Cuboid(grid);
 
-            cuboid.XLength.Should().Be(5);
-            cuboid.YLength.Should().Be(3);
-            cuboid.ZLength.Should().Be(7);
-            cuboid.XMax.Should().Be(5 - 1);
-            cuboid.YMax.Should().Be(3 - 1);
-            cuboid.ZMax.Should().Be(7 - 1);
+            cuboid.Length.X.Should().Be(5);
+            cuboid.Length.Y.Should().Be(3);
+            cuboid.Length.Z.Should().Be(7);
             cuboid.CubieCount.Should().Be(5 * 3 * 7 - 1);
         }
 
@@ -65,9 +62,9 @@ namespace Polycube.Tests
 ...";
             var cuboid = new Cuboid(gridOneBlocked);
 
-            cuboid.XLength.Should().Be(4);
-            cuboid.YLength.Should().Be(2);
-            cuboid.ZLength.Should().Be(3);
+            cuboid.Length.X.Should().Be(4);
+            cuboid.Length.Y.Should().Be(2);
+            cuboid.Length.Z.Should().Be(3);
             cuboid.CubieCount.Should().Be(4 * 2 * 3 - 1);
         }
     }

@@ -113,19 +113,19 @@ TTTT
 -I
 -I"
 .ToPoints('-')
-.ToJsonArray()
+.Select(p => p.ToString())
 .StringJoin(",");
 
             var newLine_Whitespace_Comment_Pattern = @"\r|\n|\s|/\*.*?\*/";
             var expected = @"
 /* y=0 first layer */
-                                                        /*      */
-[[1],[0],[0]],[[1],[0],[1]],[[1],[0],[2]],[[1],[0],[3]],/* TTTT */
-                            [[2],[0],[2]],              /*   T  */
+                                 /*      */
+[1,0,0],[1,0,1],[1,0,2],[1,0,3], /* TTTT */
+                [2,0,2],         /*   T  */
 /* y=1 second layer */
-              [[0],[1],[1]],                            /*  I   */
-              [[1],[1],[1]]                             /*  I   */
-                                                        /*      */
+        [0,1,1],                 /*  I   */
+        [1,1,1]                  /*  I   */
+                                 /*      */
 "
 .RegexRemove(newLine_Whitespace_Comment_Pattern);
 

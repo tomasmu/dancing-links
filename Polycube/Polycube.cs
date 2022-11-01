@@ -56,11 +56,11 @@ namespace Polycube
                 foreach (var rotatedPiece in pieceRotations)
                 {
                     var pieceLen = rotatedPiece.GetDimension();
-                    for (int yGrid = 0; yGrid <= Cuboid.YLength - pieceLen.y; yGrid++)
+                    for (int yGrid = 0; yGrid <= Cuboid.Length.Y - pieceLen.Y; yGrid++)
                     {
-                        for (int xGrid = 0; xGrid <= Cuboid.XLength - pieceLen.x; xGrid++)
+                        for (int xGrid = 0; xGrid <= Cuboid.Length.X - pieceLen.X; xGrid++)
                         {
-                            for (int zGrid = 0; zGrid <= Cuboid.ZLength - pieceLen.z; zGrid++)
+                            for (int zGrid = 0; zGrid <= Cuboid.Length.Z - pieceLen.Z; zGrid++)
                             {
                                 var gridPoint = (xGrid, yGrid, zGrid);
                                 var constraintRow = CreateConstraintRow(pieceIndex, rotatedPiece, gridPoint);
@@ -122,11 +122,11 @@ namespace Polycube
             var solutionPieces = rowIds.Select(rowId => _constraintPieces[rowId]).ToList();
             var solutionOffsets = rowIds.Select(rowId => _constraintOffsets[rowId]).ToList();
 
-            var grid = new char[Cuboid.YLength, Cuboid.XLength, Cuboid.ZLength];
+            var grid = new char[Cuboid.Length.Y, Cuboid.Length.X, Cuboid.Length.Z];
             var blockedChar = '-';
-            for (int y = 0; y < Cuboid.YLength; y++)
-                for (int x = 0; x < Cuboid.XLength; x++)
-                    for (int z = 0; z < Cuboid.ZLength; z++)
+            for (int y = 0; y < Cuboid.Length.Y; y++)
+                for (int x = 0; x < Cuboid.Length.X; x++)
+                    for (int z = 0; z < Cuboid.Length.Z; z++)
                         if (Cuboid.Grid[y, x, z])
                             grid[y, x, z] = blockedChar;
             
@@ -146,13 +146,13 @@ namespace Polycube
         public string GridToString(char[,,] grid)
         {
             var sb = new StringBuilder();
-            for (int y = 0; y < Cuboid.YLength; y++)
+            for (int y = 0; y < Cuboid.Length.Y; y++)
             {
                 var indent = new string(' ', y);
-                for (int x = 0; x < Cuboid.XLength; x++)
+                for (int x = 0; x < Cuboid.Length.X; x++)
                 {
                     sb.Append($"{indent}[");
-                    for (int z = 0; z < Cuboid.ZLength; z++)
+                    for (int z = 0; z < Cuboid.Length.Z; z++)
                     {
                         sb.Append(grid[y, x, z]);
                     }

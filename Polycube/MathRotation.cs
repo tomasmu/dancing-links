@@ -35,10 +35,10 @@ namespace Polycube
                 : remainder + b;
         }
 
-        public static int[,] GetRotationMatrix(int x, int y, int z)
+        public static int[,] GetRotationMatrix(Vector degrees)
         {
-            var sinx = SinInt(x);
-            var cosx = CosInt(x);
+            var sinx = SinInt(degrees.X);
+            var cosx = CosInt(degrees.X);
             var rx = new int[,]
             {
                 { 1,    0,     0 },
@@ -46,8 +46,8 @@ namespace Polycube
                 { 0, sinx,  cosx },
             };
 
-            var siny = SinInt(y);
-            var cosy = CosInt(y);
+            var siny = SinInt(degrees.Y);
+            var cosy = CosInt(degrees.Y);
             var ry = new int[,]
             {
                 {  cosy, 0, siny },
@@ -55,8 +55,8 @@ namespace Polycube
                 { -siny, 0, cosy },
             };
 
-            var sinz = SinInt(z);
-            var cosz = CosInt(z);
+            var sinz = SinInt(degrees.Z);
+            var cosz = CosInt(degrees.Z);
             var rz = new int[,]
             {
                 { cosz, -sinz, 0 },
@@ -68,13 +68,13 @@ namespace Polycube
             return result;
         }
 
-        public static int[,] GetRotationMatrix_4x4(int x, int y, int z)
+        public static int[,] GetRotationMatrixAugmented(Vector degrees)
         {
             //using 4x4 rotation matrices
             //to be compatible with translation matrices
             //hack: 3x4 matrices suffice for now
-            var sinx = SinInt(x);
-            var cosx = CosInt(x);
+            var sinx = SinInt(degrees.X);
+            var cosx = CosInt(degrees.X);
             var rx = new int[,]
             {
                 { 1,    0,     0, 0 },
@@ -83,8 +83,8 @@ namespace Polycube
               //{ 0,    0,     0, 1 },
             };
 
-            var siny = SinInt(y);
-            var cosy = CosInt(y);
+            var siny = SinInt(degrees.Y);
+            var cosy = CosInt(degrees.Y);
             var ry = new int[,]
             {
                 {  cosy, 0, siny, 0 },
@@ -93,8 +93,8 @@ namespace Polycube
               //{     0, 0,    0, 1 },
             };
 
-            var sinz = SinInt(z);
-            var cosz = CosInt(z);
+            var sinz = SinInt(degrees.Z);
+            var cosz = CosInt(degrees.Z);
             var rz = new int[,]
             {
                 { cosz, -sinz, 0, 0 },
@@ -116,7 +116,8 @@ namespace Polycube
                 {
                     for (int z = 0; z < 360; z += 90)
                     {
-                        var rotation = GetRotationMatrix(x, y, z);
+                        var degrees = new Vector(x, y, z);
+                        var rotation = GetRotationMatrix(degrees);
                         rotationList.Add(rotation);
                     }
                 }
@@ -131,21 +132,21 @@ namespace Polycube
             return unique;
         }
 
-        public static int[,] GetTranslationMatrix(int dx, int dy, int dz)
+        public static int[,] GetTranslationMatrix(Vector offset)
         {
             //hack: 3x4 matrix suffice for now
             var translation = new int[,]
             {
-                { 1, 0, 0, dx },
-                { 0, 1, 0, dy },
-                { 0, 0, 1, dz },
-              //{ 0, 0, 0,  1 },
+                { 1, 0, 0, offset.X },
+                { 0, 1, 0, offset.Y },
+                { 0, 0, 1, offset.Z },
+              //{ 0, 0, 0,        1 },
             };
 
             return translation;
         }
 
-        public static int[,] GetTranslationMatrixTest(int[] offset)
+        public static int[,] GetTranslationMatrixTest(Vector offset)
         {
             var ys = offset.Length;
             var xs = offset.Length + 1;

@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Xunit;
 
@@ -140,8 +141,9 @@ namespace Polycube.Tests
         [InlineData(270, 270, 270, "[[0,0,1],[0,-1,0],[1,0,0]]")]
         public void Get_RotationMatrix(int rx, int ry, int rz, string expected)
         {
+            var degrees = new Vector(rx, ry, rz);
             var result = MathRotation
-                .GetRotationMatrix(rx, ry, rz)
+                .GetRotationMatrix(degrees)
                 .ToJson();
 
             result.Should().Be(expected);
@@ -214,16 +216,18 @@ namespace Polycube.Tests
         [InlineData(270, 270, 270)]
         public void Compare_4x4_RotationMatrix(int rx, int ry, int rz)
         {
-            var result4x4 = MathRotation.GetRotationMatrix_4x4(rx, ry, rz);
+            var degrees = new Vector(rx, ry, rz);
+            var resultAug = MathRotation.GetRotationMatrixAugmented(degrees);
             //look at upper 3x3
             var result3x3 = new int[,] {
-                { result4x4[0, 0], result4x4[0, 1], result4x4[0, 2], },
-                { result4x4[1, 0], result4x4[1, 1], result4x4[1, 2], },
-                { result4x4[2, 0], result4x4[2, 1], result4x4[2, 2], },
+                { resultAug[0, 0], resultAug[0, 1], resultAug[0, 2], },
+                { resultAug[1, 0], resultAug[1, 1], resultAug[1, 2], },
+                { resultAug[2, 0], resultAug[2, 1], resultAug[2, 2], },
             }.ToJson();
 
+            //should be the same as this method
             var expected = MathRotation
-                .GetRotationMatrix(rx, ry, rz)
+                .GetRotationMatrix(degrees)
                 .ToJson();
 
             result3x3.Should().BeEquivalentTo(expected);
@@ -365,10 +369,11 @@ L", 24)]
         [InlineData(270, 270, 270,  4, -3,  2)]
         public void RotatePoint(int xr, int yr, int zr, int xe, int ye, int ze)
         {
-            var point = new int[,] { { 2 }, { 3 }, { 4 } };
-            var rotated = point.Rotate(xr, yr, zr);
+            var degrees = new Vector(xr, yr, zr);
+            var point = new Vector(2, 3, 4);
+            var rotated = point.Rotate(degrees);
 
-            var expected = new int[,] { { xe }, { ye }, { ze } };
+            var expected = new Vector(xe, ye, ze);
 
             rotated.Should().BeEquivalentTo(expected);
         }
@@ -376,10 +381,11 @@ L", 24)]
         [Fact]
         public void TranslatePoint()
         {
-            var point = new int[,] { { 2 }, { 3 }, { 4 } };
-            var translated = point.Translate(10, -20, 30);
+            var point = new Vector(2, 3, 4);
+            var offset = new Vector(10, -20, 30);
+            var translated = point + offset;
 
-            var expected = new int[,] { { 2+10 }, { 3-20 }, { 4+30 } };
+            var expected = new Vector(2 + 10, 3 - 20, 4 + 30);
 
             translated.Should().BeEquivalentTo(expected);
         }
@@ -387,9 +393,9 @@ L", 24)]
         [Fact]
         public void Compare_TranslationMatrix()
         {
-            var offset = new int[] { 10, -20, 30 };
+            var offset = new Vector(10, -20, 30);
 
-            var translate3D = MathRotation.GetTranslationMatrix(offset[0], offset[1], offset[2]);
+            var translate3D = MathRotation.GetTranslationMatrix(offset);
             var translateXD = MathRotation.GetTranslationMatrixTest(offset);
 
             translateXD.Should().BeEquivalentTo(translate3D);
@@ -398,10 +404,7 @@ L", 24)]
         [Fact]
         public void TranslationMatrix_2D()
         {
-            var offset = new int[] { 10, -20 };
-
-            var result = MathRotation.GetTranslationMatrixTest(offset);
-
+            var offset = new Vector(10, -20);
             var expected = new int[,]
             {
                 { 1, 0,  10 },
@@ -409,13 +412,14 @@ L", 24)]
               //{ 0, 0,   1 },
             };
 
+            var result = MathRotation.GetTranslationMatrixTest(offset);
             result.Should().BeEquivalentTo(expected);
         }
 
         [Fact]
         public void TranslationMatrix_3D()
         {
-            var offset = new int[] { 10, -20, 30 };
+            var offset = new Vector(10, -20, 30);
 
             var result = MathRotation.GetTranslationMatrixTest(offset);
 
@@ -433,18 +437,18 @@ L", 24)]
         [Fact]
         public void TranslatePoints()
         {
-            var points = new List<int[,]> {
-                new int[,] { {  1 }, {  2 }, {  3 } },
-                new int[,] { { -4 }, { -5 }, { -6 } },
+            var points = new List<Vector> {
+                new Vector( 1,  2,  3),
+                new Vector(-4, -5, -6)
             };
 
-            var rotatedInOrigo = points
-                .Select(x => x.Translate(-2, 3, 4));
+            var offset = new Vector(-2, 3, 4);
+            var rotatedInOrigo = points.Select(point => point + offset);
 
-            var expected = new List<int[,]>
+            var expected = new List<Vector>
             {
-                new int[,] { { -1 }, {  5 }, {  7 } },
-                new int[,] { { -6 }, { -2 }, { -2 } },
+                new Vector( -1,  5,  7),
+                new Vector( -6, -2, -2),
             };
 
             rotatedInOrigo.Should().BeEquivalentTo(expected);
@@ -453,74 +457,80 @@ L", 24)]
         [Fact]
         public void GetAxesMinValues_2D_point()
         {
-            var points = new List<int[,]> {
-                new int[,] { {  0 }, {  2 } },
-                new int[,] { {  1 }, {  0 } },
-                new int[,] { {  0 }, { -2 } },
-                new int[,] { { -1 }, {  0 } },
+            var points = new List<Vector> {
+                new Vector( 0,  2),
+                new Vector( 1,  0),
+                new Vector( 0, -2),
+                new Vector(-1,  0)
             };
 
             var min = points.GetAxesMinValues();
 
-            min[0].Should().Be(-1);
-            min[1].Should().Be(-2);
+            min.X.Should().Be(-1);
+            min.Y.Should().Be(-2);
         }
 
         [Fact]
         public void GetAxesMaxValues_2D_point()
         {
-            var points = new List<int[,]> {
-                new int[,] { { -1 }, {  0 } },
-                new int[,] { {  0 }, {  2 } },
-                new int[,] { {  1 }, {  0 } },
-                new int[,] { {  0 }, { -2 } },
+            var points = new List<Vector> {
+                new Vector( -1,  0),
+                new Vector(  0,  2),
+                new Vector(  1,  0),
+                new Vector(  0, -2),
             };
 
-            var min = points.GetAxesMaxValues();
+            var max = points.GetAxesMaxValues();
             
-            min.Length.Should().Be(2);
-            min[0].Should().Be(1);
-            min[1].Should().Be(2);
+            max.Length.Should().Be(2);
+
+            max.X.Should().Be(1);
+            max[0].Should().Be(1);
+            max[0, 0].Should().Be(1);
+            
+            max.Y.Should().Be(2);
+            max[1].Should().Be(2);
+            max[1, 0].Should().Be(2);
         }
  
         [Fact]
         public void GetAxesMinValues_3D_point()
         {
-            var points = new List<int[,]> {
-                new int[,] { { -1 }, {  0 }, {  0 } },
-                new int[,] { {  0 }, { -2 }, {  0 } },
-                new int[,] { {  1 }, {  0 }, { -3 } },
-                new int[,] { {  0 }, {  2 }, {  0 } },
-                new int[,] { {  0 }, {  0 }, {  3 } },
+            var points = new List<Vector> {
+                new Vector(-1,  0,  0),
+                new Vector( 0, -2,  0),
+                new Vector( 1,  0, -3),
+                new Vector( 0,  2,  0),
+                new Vector( 0,  0,  3)
             };
 
             var min = points.GetAxesMinValues();
 
             min.Length.Should().Be(3);
-            min[0].Should().Be(-1);
-            min[1].Should().Be(-2);
-            min[2].Should().Be(-3);
+            min.X.Should().Be(-1);
+            min.Y.Should().Be(-2);
+            min.Z.Should().Be(-3);
         }
 
         [Fact]
         public void TranslateToOrigo_Test()
         {
-            var points = new List<int[,]> {
-                new int[,] { { -1 }, {  0 }, {  0 } },
-                new int[,] { {  0 }, { -2 }, {  0 } },
-                new int[,] { {  1 }, {  0 }, { -3 } },
-                new int[,] { {  0 }, {  2 }, {  0 } },
-                new int[,] { {  0 }, {  0 }, {  3 } },
+            var points = new List<Vector> {
+                new Vector(-1,  0,  0),
+                new Vector( 0, -2,  0),
+                new Vector( 1,  0, -3),
+                new Vector( 0,  2,  0),
+                new Vector( 0,  0,  3),
             };
 
             var origo = points.TranslateToOrigo();
 
-            var expected = new List<int[,]> {
-                new int[,] { {  0 }, {  2 }, {  3 } },
-                new int[,] { {  1 }, {  0 }, {  3 } },
-                new int[,] { {  2 }, {  2 }, {  0 } },
-                new int[,] { {  1 }, {  4 }, {  3 } },
-                new int[,] { {  1 }, {  2 }, {  6 } },
+            var expected = new List<Vector> {
+                new Vector( 0,  2,  3),
+                new Vector( 1,  0,  3),
+                new Vector( 2,  2,  0),
+                new Vector( 1,  4,  3),
+                new Vector( 1,  2,  6),
             };
 
             origo.Should().BeEquivalentTo(expected);

@@ -10,12 +10,7 @@ namespace Polycube
     public class Cuboid
     {
         public bool[,,] Grid { get; set; }
-        public int XLength { private set; get; }
-        public int YLength { private set; get; }
-        public int ZLength { private set; get; }
-        public int XMax { private set; get; }
-        public int YMax { private set; get; }
-        public int ZMax { private set; get; }
+        public Vector Length { private set; get; }
         public int CubieCount { private set; get; }
 
         public Cuboid(bool[,,] grid)
@@ -27,8 +22,7 @@ namespace Polycube
 
         private void Init()
         {
-            (XLength, YLength, ZLength) = Grid.GetLengths();
-            (XMax, YMax, ZMax) = (XLength - 1, YLength - 1, ZLength - 1);
+            Length = Grid.GetLengths();
             CubieCount = CountCubies(Grid);
             MapCoordinates(Grid);
         }
@@ -45,11 +39,11 @@ namespace Polycube
         {
             var cubieCount = 0;
             var len = grid.GetLengths();
-            for (int y = 0; y < len.y; y++)
+            for (int y = 0; y < len.Y; y++)
             {
-                for (int x = 0; x < len.x; x++)
+                for (int x = 0; x < len.X; x++)
                 {
-                    for (int z = 0; z < len.z; z++)
+                    for (int z = 0; z < len.Z; z++)
                     {
                         if (!grid[y, x, z])
                             cubieCount++;
@@ -71,11 +65,11 @@ namespace Polycube
             MapIndexToXYZ = new();
             MapXYZToIndex = new();
             var index = 0;
-            for (int y = 0; y < YLength; y++)
+            for (int y = 0; y < Length.Y; y++)
             {
-                for (int x = 0; x < XLength; x++)
+                for (int x = 0; x < Length.X; x++)
                 {
-                    for (int z = 0; z < ZLength; z++)
+                    for (int z = 0; z < Length.Z; z++)
                     {
                         if (grid[y, x, z])
                             continue;

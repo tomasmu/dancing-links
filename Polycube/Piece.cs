@@ -39,26 +39,26 @@ namespace Polycube
             Points = piece.ToPoints(_emptyChar);
         }
 
-        public Piece(IEnumerable<int[,]> points, char name)
+        public Piece(IEnumerable<Vector> points, char name)
         {
             Name = name;
             Points = points;
         }
 
-        public IEnumerable<int[,]> Points { get; }
+        public IEnumerable<Vector> Points { get; }
         
         public IEnumerable<Piece> GetRotations() =>
             Points.GetUniqueRotations().Select(p => new Piece(p, Name));
 
-        public (int x, int y, int z) GetDimension()
+        public Vector GetDimension()
         {
+            //todo: works when min is (0,0,0), which is how i use it
+            //should perhaps be max-min?
             var max = Points.GetAxesMaxValues();
-            var (xLen, yLen, zLen) = (max[0] + 1, max[1] + 1, max[2] + 1);
-
-            return (xLen, yLen, zLen);
+            return max + 1;
         }
 
-        private string PointsToString(IEnumerable<int[,]> points)
+        private string PointsToString(IEnumerable<Vector> points)
         {
             var pieceChar = Name;
             var max = points.GetAxesMaxValues();

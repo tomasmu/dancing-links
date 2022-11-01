@@ -64,5 +64,41 @@ namespace Polycube.Tests
 
             result.Should().BeEquivalentTo(expected);
         }
+
+        [Fact]
+        public void Multiplication_Vector()
+        {
+            var a = new int[,]
+            {
+                { 1, 2, 3 },
+                { 4, 5, 6 },
+                { 9, 8, 7 },
+                { 6, 5, 4 },
+            };
+            var b = new Vector(100, 10);
+            var result = a * b;
+
+            var expected = new Vector(4);
+            //multiply assumes 1 here ----v
+            expected[0] = 1*100 + 2*10 + 3*1;
+            expected[1] = 4*100 + 5*10 + 6*1;
+            expected[2] = 9*100 + 8*10 + 7*1;
+            expected[3] = 6*100 + 5*10 + 4*1;
+
+            result.Should().BeEquivalentTo(expected);
+        }
+
+        [Fact]
+        public void MultiplicationLeft()
+        {
+            var degrees = new Vector(90, 90, 90);
+            var matrix = MathRotation.GetRotationMatrix(degrees);
+            var point = new Vector(2, 3, 4);
+
+            var result = matrix * point;
+
+            var expected = new Vector(4, 3, -2);
+            result.Should().BeEquivalentTo(expected);
+        }
     }
 }

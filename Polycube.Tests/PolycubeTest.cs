@@ -296,7 +296,7 @@ MM
             var cuboid = new Cuboid(grid);
             var bedlam = new Polycube(cuboid, pieces);
 
-            bedlam.Solve(1_000_000);
+            bedlam.Solve(int.MaxValue);
 
             bedlam.Solutions.Count.Should().Be(24 * 19186);
         }
@@ -304,6 +304,7 @@ MM
         [Fact(Skip = "this test takes an hour to run")]
         public void Solve_Tetris_cube()
         {
+            var grid = new bool[4, 4, 4];
             var pieces = new string[]
             {
 @"
@@ -392,7 +393,7 @@ LLL
             var cuboid = new Cuboid(grid);
             var tetris = new Polycube(cuboid, pieces);
 
-            tetris.Solve(1_000_000);
+            tetris.Solve(int.MaxValue);
 
             tetris.Solutions.Count.Should().Be(24 * 9839);
         }

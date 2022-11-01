@@ -43,7 +43,7 @@ namespace Polycube
         //        .ToArray();
 
         //todo: these should not be extension methods, parser class?
-        public static IEnumerable<int[,]> ToPoints(this string piece, char ignoreChar)
+        public static IEnumerable<Vector> ToPoints(this string piece, char ignoreChar)
         {
             var doubleNewLine = @"(\r\n){2}|\r{2}|\n{2}";
             var singleNewLine = @"(\r\n){1}|\r{1}|\n{1}";
@@ -61,7 +61,7 @@ namespace Polycube
                     {
                         if (xs[x][z] != ignoreChar)
                         {
-                            yield return new int[,] { { x }, { y }, { z } };    
+                            yield return new Vector(x, y, z);    
                         }
                     }
                 }
