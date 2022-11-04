@@ -101,7 +101,7 @@ P",
             }.Select(str => new Piece(str));
 
             var polycube = new Polycube(cuboid, pieces);
-            polycube.Solve(100000);
+            polycube.Solve(20000);
 
             //soma cube has 240 unique solutions
             //240*24*2 = 11520 in total
@@ -109,7 +109,7 @@ P",
         }
 
         [Fact(
-            Skip = "this test takes a few seconds to run"
+            //Skip = "this test takes a few seconds to run"
         )]
         public void Solve_Wooden_puzzle()
         {
@@ -141,7 +141,7 @@ ZZ
             var cuboid = new Cuboid(grid);
             var polycube = new Polycube(cuboid, pieces);
 
-            polycube.Solve(int.MaxValue);
+            polycube.Solve(330000);
 
             //24 rotations * 4! L permutations * 564?
             polycube.Solutions.Count().Should().Be(324864);
@@ -193,64 +193,14 @@ ZZ
             var cuboid = new Cuboid(grid);
             var polycube = new Polycube(cuboid, pieces);
 
-            polycube.Solve(int.MaxValue);
+            polycube.Solve(400000);
 
             polycube.Solutions.Count().Should().BeGreaterThanOrEqualTo(1);
         }
 
-        [Fact]
-        public void Solve_Wooden_puzzle_Another_shape2()
-        {
-            var grid = @"
-...
-...
-...
-
-...
-.-.
-...
-
-...
-...
-...
-
----
--.-
----
-";
-            var pieces = new string[]
-            {
-                @"
-111
-1",
-                @"
-222
-2",
-                @"
-333
-3",
-                @"
-444
-4",
-                @"
-V
-VV",
-                @"
-TTT
--T-",
-                @"
-ZZ
--ZZ"
-            }.Select(str => new Piece(str));
-            var cuboid = new Cuboid(grid);
-            var polycube = new Polycube(cuboid, pieces);
-
-            polycube.Solve(int.MaxValue);
-
-            polycube.Solutions.Count().Should().BeGreaterThanOrEqualTo(1);
-        }
-
-        [Fact(Skip = "this test takes an hour to run")]
+        [Fact(
+            Skip = "this test takes an hour to run"
+        )]
         public void Solve_Bedlam_cube()
         {
             var grid = new bool[4, 4, 4];
@@ -351,7 +301,7 @@ MM
             var cuboid = new Cuboid(grid);
             var polycube = new Polycube(cuboid, pieces);
 
-            polycube.Solve(int.MaxValue);
+            polycube.Solve(470000);
 
             /*
 first solution:
@@ -377,7 +327,9 @@ elapsed time: 50 minutes
             polycube.Solutions.Count().Should().Be(24 * 19186);
         }
 
-        [Fact(Skip = "this test takes two hours to run")]
+        [Fact(
+            Skip = "this test takes two hours to run"
+        )]
         public void Solve_Tetris_cube()
         {
             var grid = new bool[4, 4, 4];
@@ -469,7 +421,7 @@ LLL
             var cuboid = new Cuboid(grid);
             var polycube = new Polycube(cuboid, pieces);
 
-            polycube.Solve(int.MaxValue);
+            polycube.Solve(240000);
             /*
 first solution:
 [AAAB]
