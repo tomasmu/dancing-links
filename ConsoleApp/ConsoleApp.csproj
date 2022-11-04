@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Pentominoes\Pentominoes.csproj" />
+    <ProjectReference Include="..\Polycube\Polycube.csproj" />
     <ProjectReference Include="..\SudokuSolver\SudokuSolver.csproj" />
   </ItemGroup>
 

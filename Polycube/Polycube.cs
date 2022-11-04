@@ -1,12 +1,13 @@
 ﻿using DancingLinks;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Polycube
+namespace PolycubeSolver
 {
     public class Polycube
     {
@@ -39,7 +40,7 @@ namespace Polycube
 
         private bool[][] _constraintMatrix;
         private List<Piece> _constraintPieces;
-        private List<(int x, int y, int z)> _constraintOffsets;
+        private List<Vector> _constraintOffsets;
         private readonly int _pieceCubieCount;
         private readonly int _pieceCount;
         private readonly int _constraintColumnCount;
@@ -48,7 +49,7 @@ namespace Polycube
         {
             var constraintRows = new List<bool[]>();
             var constraintPieces = new List<Piece>();
-            var constraintOffsets = new List<(int x, int y, int z)>();
+            var constraintOffsets = new List<Vector>();
 
             for (int pieceIndex = 0; pieceIndex < pieces.Count(); pieceIndex++)
             {
@@ -62,13 +63,13 @@ namespace Polycube
                         {
                             for (int zGrid = 0; zGrid <= Cuboid.Length.Z - pieceLen.Z; zGrid++)
                             {
-                                var gridPoint = (xGrid, yGrid, zGrid);
-                                var constraintRow = CreateConstraintRow(pieceIndex, rotatedPiece, gridPoint);
+                                var fromPoint = new Vector(xGrid, yGrid, zGrid);
+                                var constraintRow = CreateConstraintRow(pieceIndex, rotatedPiece, fromPoint);
                                 if (constraintRow != null)
                                 {
                                     constraintRows.Add(constraintRow);
                                     constraintPieces.Add(rotatedPiece);
-                                    constraintOffsets.Add((xGrid, yGrid, zGrid));
+                                    constraintOffsets.Add(fromPoint);
                                 }
                             }
                         }
@@ -81,20 +82,17 @@ namespace Polycube
             _constraintOffsets = constraintOffsets;
         }
 
-        private bool[] CreateConstraintRow(int pieceIndex, Piece piece, (int x, int y, int z) grid)
+        private bool[] CreateConstraintRow(int pieceIndex, Piece piece, Vector fromPoint)
         {
-            //todo: in order to handle blocked cubies in the grid
-            //i need to create an index map of some sort i think?
-            //if (0,0,1) is blocked, then 0,1,2,... = (0,0,0),(0,0,2),(0,0,3),...
             var constraintRow = new bool[_constraintColumnCount];
             constraintRow[pieceIndex] = true;
             foreach (var point in piece.Points)
             {
-                var (x, y, z) = (grid.x + point[0, 0], grid.y + point[1, 0], grid.z + point[2, 0]);
-                if (Cuboid[y, x, z])
+                var p = fromPoint + point;
+                if (Cuboid[p.Y, p.X, p.Z])
                     return null;
 
-                var constraintColumn = Cuboid.GetMapped(x, y, z);
+                var constraintColumn = Cuboid.GetMapped(p);
                 constraintRow[_pieceCount + constraintColumn] = true;
             }
 
@@ -124,18 +122,17 @@ namespace Polycube
 
             var grid = new char[Cuboid.Length.Y, Cuboid.Length.X, Cuboid.Length.Z];
             var blockedChar = '-';
-            for (int y = 0; y < Cuboid.Length.Y; y++)
-                for (int x = 0; x < Cuboid.Length.X; x++)
-                    for (int z = 0; z < Cuboid.Length.Z; z++)
-                        if (Cuboid.Grid[y, x, z])
-                            grid[y, x, z] = blockedChar;
-            
+            foreach (var point in Cuboid.BlockedPoints)
+            {
+                var (x, y, z) = point;
+                grid[y, x, z] = blockedChar;
+            }
+
             for (int i = 0; i < solutionPieces.Count; i++)
             {
                 foreach (var point in solutionPieces[i].Points)
                 {
-                    var (dx, dy, dz) = solutionOffsets[i];
-                    var (x, y, z) = (point[0, 0] + dx, point[1, 0] + dy, point[2, 0] + dz);
+                    var (x, y, z) = point + solutionOffsets[i];
                     grid[y, x, z] = solutionPieces[i].Name;
                 }
             }

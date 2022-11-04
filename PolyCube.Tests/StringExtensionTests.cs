@@ -3,7 +3,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Xunit;
 
-namespace Polycube.Tests
+namespace PolycubeSolver.Tests
 {
     public class StringExtensionTests
     {

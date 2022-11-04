@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Polycube
+namespace PolycubeSolver
 {
     public static class MathRotation
     {
@@ -35,81 +35,81 @@ namespace Polycube
                 : remainder + b;
         }
 
-        public static int[,] GetRotationMatrix(Vector degrees)
+        public static Matrix GetRotationMatrix(Vector degrees)
         {
             var sinx = SinInt(degrees.X);
             var cosx = CosInt(degrees.X);
-            var rx = new int[,]
+            var rx = new Matrix(new int[,]
             {
                 { 1,    0,     0 },
                 { 0, cosx, -sinx },
                 { 0, sinx,  cosx },
-            };
+            });
 
             var siny = SinInt(degrees.Y);
             var cosy = CosInt(degrees.Y);
-            var ry = new int[,]
+            var ry = new Matrix(new int[,]
             {
                 {  cosy, 0, siny },
                 {     0, 1,    0 },
                 { -siny, 0, cosy },
-            };
+            });
 
             var sinz = SinInt(degrees.Z);
             var cosz = CosInt(degrees.Z);
-            var rz = new int[,]
+            var rz = new Matrix(new int[,]
             {
                 { cosz, -sinz, 0 },
                 { sinz,  cosz, 0 },
                 {    0,     0, 1 },
-            };
+            });
 
-            var result = rz.Multiply(ry).Multiply(rx);
+            var result = rz * ry * rx;
             return result;
         }
 
-        public static int[,] GetRotationMatrixAugmented(Vector degrees)
+        public static Matrix GetRotationMatrixAugmented(Vector degrees)
         {
             //using 4x4 rotation matrices
             //to be compatible with translation matrices
             //hack: 3x4 matrices suffice for now
             var sinx = SinInt(degrees.X);
             var cosx = CosInt(degrees.X);
-            var rx = new int[,]
+            var rx = new Matrix(new int[,]
             {
                 { 1,    0,     0, 0 },
                 { 0, cosx, -sinx, 0 },
                 { 0, sinx,  cosx, 0 },
               //{ 0,    0,     0, 1 },
-            };
+            });
 
             var siny = SinInt(degrees.Y);
             var cosy = CosInt(degrees.Y);
-            var ry = new int[,]
+            var ry = new Matrix(new int[,]
             {
                 {  cosy, 0, siny, 0 },
                 {     0, 1,    0, 0 },
                 { -siny, 0, cosy, 0 },
               //{     0, 0,    0, 1 },
-            };
+            });
 
             var sinz = SinInt(degrees.Z);
             var cosz = CosInt(degrees.Z);
-            var rz = new int[,]
+            var rz = new Matrix(new int[,]
             {
                 { cosz, -sinz, 0, 0 },
                 { sinz, cosz,  0, 0 },
                 {    0,    0,  1, 0 },
               //{    0,    0,  0, 1 },
-            };
+            });
 
-            var result = rz.Multiply(ry).Multiply(rx);
+            var result = rz * ry * rx;
             return result;
         }
 
-        public static IEnumerable<int[,]> GetUniqueRotationMatrices()
+        public static IEnumerable<Matrix> GetUniqueRotationMatrices()
         {
-            var rotationList = new List<int[,]>();
+            var rotationList = new List<Matrix>();
             for (int x = 0; x < 360; x += 90)
             {
                 for (int y = 0; y < 360; y += 90)
@@ -117,7 +117,7 @@ namespace Polycube
                     for (int z = 0; z < 360; z += 90)
                     {
                         var degrees = new Vector(x, y, z);
-                        var rotation = GetRotationMatrix(degrees);
+                        var rotation = GetRotationMatrixAugmented(degrees);
                         rotationList.Add(rotation);
                     }
                 }
@@ -125,32 +125,18 @@ namespace Polycube
 
             //hack: easiest way of getting all unique matrices :-)
             var unique = rotationList
-                .ToJsonArray()
-                .Distinct()
-                .FromJsonArray<int[,]>();
+                .GroupBy(r => r.Grid.ToJson())
+                .Select(g => g.First());
 
             return unique;
         }
 
-        public static int[,] GetTranslationMatrix(Vector offset)
+        public static Matrix GetTranslationMatrixAugmented(Vector offset)
         {
-            //hack: 3x4 matrix suffice for now
-            var translation = new int[,]
-            {
-                { 1, 0, 0, offset.X },
-                { 0, 1, 0, offset.Y },
-                { 0, 0, 1, offset.Z },
-              //{ 0, 0, 0,        1 },
-            };
-
-            return translation;
-        }
-
-        public static int[,] GetTranslationMatrixTest(Vector offset)
-        {
+            //augmented translation matrix that's missing the last row
             var ys = offset.Length;
             var xs = offset.Length + 1;
-            var translation = new int[ys,xs];
+            var translation = new Matrix(ys, xs);
             for (int y = 0; y < ys; y++)
             {
                 translation[y, y] = 1;

@@ -6,12 +6,12 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Polycube.Tests
+namespace PolycubeSolver.Tests
 {
     public class CuboidTests
     {
         [Fact]
-        public void CuboidProperties()
+        public void CuboidConstructorArray()
         {
             var grid = new bool[3, 5, 7];
             grid[0, 0, 0] = true;   //block one
@@ -24,31 +24,7 @@ namespace Polycube.Tests
         }
 
         [Fact]
-        public void CanParseString()
-        {
-            var parsedGrid = @"
--..
-...
-...
-...
-
-...
-...
-...
-...".ToGrid('-');
-
-            var (xLen, yLen, zLen) = parsedGrid.GetLengths();
-
-            xLen.Should().Be(4);
-            yLen.Should().Be(2);
-            zLen.Should().Be(3);
-            parsedGrid[0, 0, 0].Should().BeTrue();  //should be the only one
-            //parsedGrid[all, the, others].Should().BeFalse();
-        }
-
-        //todo: should probably not be done in the Cuboid class
-        [Fact]
-        public void CuboidCanParseString()
+        public void CuboidConstructorCanParseString()
         {
             var gridOneBlocked = @"
 -..
@@ -66,6 +42,7 @@ namespace Polycube.Tests
             cuboid.Length.Y.Should().Be(2);
             cuboid.Length.Z.Should().Be(3);
             cuboid.CubieCount.Should().Be(4 * 2 * 3 - 1);
+            cuboid.Grid[0, 0, 0].Should().BeTrue();  //should be the only one
         }
     }
 }

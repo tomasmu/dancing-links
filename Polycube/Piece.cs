@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Polycube
+namespace PolycubeSolver
 {
     //todo: options
     [Flags]
@@ -16,7 +16,6 @@ namespace Polycube
         All  = X | Y | Z,
     }
 
-    //todo: make it work for both 2D and 3D
     public class Piece
     {
         public char Name { get; set; }
@@ -48,7 +47,9 @@ namespace Polycube
         public IEnumerable<Vector> Points { get; }
         
         public IEnumerable<Piece> GetRotations() =>
-            Points.GetUniqueRotations().Select(p => new Piece(p, Name));
+            Points
+                .GetUniqueRotations()
+                .Select(p => new Piece(p, Name));
 
         public Vector GetDimension()
         {
@@ -61,23 +62,22 @@ namespace Polycube
         private string PointsToString(IEnumerable<Vector> points)
         {
             var pieceChar = Name;
-            var max = points.GetAxesMaxValues();
-            var (xLen, yLen, zLen) = (max[0] + 1, max[1] + 1, max[2] + 1);
-            var pieceArray = new char[yLen, xLen, zLen];
+            var maxLen = points.GetAxesMaxValues() + 1;
+            var pieceArray = new char[maxLen.Y, maxLen.X, maxLen.Z];
             foreach (var point in points)
             {
-                var (x, y, z) = (point[0, 0], point[1, 0], point[2, 0]);
+                var (x, y, z) = point;
                 pieceArray[y, x, z] = pieceChar;
             }
 
             var sb = new StringBuilder();
-            for (int y = 0; y < yLen; y++)
+            for (int y = 0; y < maxLen.Y; y++)
             {
                 var indent = new string(_indentChar, y);
-                for (int x = 0; x < xLen; x++)
+                for (int x = 0; x < maxLen.X; x++)
                 {
                     sb.Append($"{indent}[");
-                    for (int z = 0; z < zLen; z++)
+                    for (int z = 0; z < maxLen.Z; z++)
                     {
                         var chr = pieceArray[y, x, z] == 0 ? _emptyChar : pieceChar;
                         sb.Append(chr);

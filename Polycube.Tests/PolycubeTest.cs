@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Polycube.Tests
+namespace PolycubeSolver.Tests
 {
     public class PolycubeTest
     {
@@ -29,11 +29,11 @@ VV",
 @"S",
             }.Select(str => new Piece(str));
 
-            var poly = new Polycube(cuboid, pieces);
-            poly.Solve(100);
+            var polycube = new Polycube(cuboid, pieces);
+            polycube.Solve(100);
 
             //box can be in 2 places, S and V in 4
-            poly.Solutions.Count.Should().Be(2 * 4);
+            polycube.Solutions.Count().Should().Be(2 * 4);
         }
 
         [Fact]
@@ -56,12 +56,12 @@ BB",
             }.Select(str => new Piece(str));
 
             var poly = new Polycube(cuboid, pieces);
-            poly.Solve(100000);
+            poly.Solve(100);
 
             //B-piece in front (1 way): I,J can be IJ, JI, [IJ], [JI] = 1*4
             //B-piece in back (2 ways): I,J can be IJ, JI = 2*2
             //4+4=8
-            poly.Solutions.Count.Should().Be(8);
+            poly.Solutions.Count().Should().Be(8);
         }
 
         [Fact]
@@ -101,11 +101,50 @@ P",
             }.Select(str => new Piece(str));
 
             var polycube = new Polycube(cuboid, pieces);
-            polycube.Solve(int.MaxValue);
+            polycube.Solve(100000);
 
             //soma cube has 240 unique solutions
             //240*24*2 = 11520 in total
-            polycube.Solutions.Count.Should().Be(11520);
+            polycube.Solutions.Count().Should().Be(11520);
+        }
+
+        [Fact(
+            Skip = "this test takes a few seconds to run"
+        )]
+        public void Solve_Wooden_puzzle()
+        {
+            var grid = new bool[3, 3, 3];
+            var pieces = new string[]
+            {
+                @"
+111
+1",
+                @"
+222
+2",
+                @"
+333
+3",
+                @"
+444
+4",
+                @"
+V
+VV",
+                @"
+TTT
+-T-",
+                @"
+ZZ
+-ZZ"
+            }.Select(str => new Piece(str));
+            var cuboid = new Cuboid(grid);
+            var polycube = new Polycube(cuboid, pieces);
+
+            polycube.Solve(int.MaxValue);
+
+            //24 rotations * 4! L permutations * 564?
+            polycube.Solutions.Count().Should().Be(324864);
         }
 
         [Fact]
@@ -152,17 +191,33 @@ ZZ
 -ZZ"
             }.Select(str => new Piece(str));
             var cuboid = new Cuboid(grid);
-            var woodenPuzzle = new Polycube(cuboid, pieces);
+            var polycube = new Polycube(cuboid, pieces);
 
-            woodenPuzzle.Solve(int.MaxValue);
+            polycube.Solve(int.MaxValue);
 
-            woodenPuzzle.Solutions.Count.Should().BeGreaterThanOrEqualTo(1);
+            polycube.Solutions.Count().Should().BeGreaterThanOrEqualTo(1);
         }
 
         [Fact]
-        public void Solve_Wooden_puzzle()
+        public void Solve_Wooden_puzzle_Another_shape2()
         {
-            var grid = new bool[3, 3, 3];
+            var grid = @"
+...
+...
+...
+
+...
+.-.
+...
+
+...
+...
+...
+
+---
+-.-
+---
+";
             var pieces = new string[]
             {
                 @"
@@ -188,11 +243,11 @@ ZZ
 -ZZ"
             }.Select(str => new Piece(str));
             var cuboid = new Cuboid(grid);
-            var woodenPuzzle = new Polycube(cuboid, pieces);
+            var polycube = new Polycube(cuboid, pieces);
 
-            woodenPuzzle.Solve(int.MaxValue);
+            polycube.Solve(int.MaxValue);
 
-            woodenPuzzle.Solutions.Count.Should().BeGreaterThanOrEqualTo(1);
+            polycube.Solutions.Count().Should().BeGreaterThanOrEqualTo(1);
         }
 
         [Fact(Skip = "this test takes an hour to run")]
@@ -294,14 +349,35 @@ MM
 -M"
             }.Select(str => new Piece(str));
             var cuboid = new Cuboid(grid);
-            var bedlam = new Polycube(cuboid, pieces);
+            var polycube = new Polycube(cuboid, pieces);
 
-            bedlam.Solve(int.MaxValue);
+            polycube.Solve(int.MaxValue);
 
-            bedlam.Solutions.Count.Should().Be(24 * 19186);
+            /*
+first solution:
+[ABDD]
+[BBBD]
+[IBMM]
+[IKKM]
+ [AAAC]
+ [GGFD]
+ [KKMD]
+ [IKLL]
+  [GACC]
+  [GFFE]
+  [GJFL]
+  [IIHL]
+   [JCCE]
+   [JFEE]
+   [JJHE]
+   [HHHL]
+solutions: 460464
+elapsed time: 50 minutes
+            */
+            polycube.Solutions.Count().Should().Be(24 * 19186);
         }
 
-        [Fact(Skip = "this test takes an hour to run")]
+        [Fact(Skip = "this test takes two hours to run")]
         public void Solve_Tetris_cube()
         {
             var grid = new bool[4, 4, 4];
@@ -391,11 +467,31 @@ LLL
 -L"
             }.Select(str => new Piece(str));
             var cuboid = new Cuboid(grid);
-            var tetris = new Polycube(cuboid, pieces);
+            var polycube = new Polycube(cuboid, pieces);
 
-            tetris.Solve(int.MaxValue);
-
-            tetris.Solutions.Count.Should().Be(24 * 9839);
+            polycube.Solve(int.MaxValue);
+            /*
+first solution:
+[AAAB]
+[JJAH]
+[KKAE]
+[DDDE]
+ [AJJB]
+ [KJHH]
+ [KEEE]
+ [KLDD]
+  [IBBB]
+  [ICBH]
+  [ILEF]
+  [LLLF]
+   [IICC]
+   [GCCH]
+   [GLFF]
+   [GGGF]
+solutions: 236136
+elapsed time: 2 hours 10 minutes
+            */
+            polycube.Solutions.Count().Should().Be(24 * 9839);
         }
     }
 }

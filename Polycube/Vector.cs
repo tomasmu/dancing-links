@@ -1,12 +1,6 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Polycube
+namespace PolycubeSolver
 {
     public class Vector
     {
@@ -49,112 +43,84 @@ namespace Polycube
         public Vector(int length) =>
             values = new int[length];
 
-        public Vector(int x, int y)
-        {
-            values = new int[2];
-            values[0] = x;
-            values[1] = y;
-        }
+        public Vector(int x, int y) =>
+            values = new int[] { x, y };
 
-        public Vector((int x, int y) xy)
-        {
-            values = new int[2];
-            values[0] = xy.x;
-            values[1] = xy.y;
-        }
+        public Vector((int x, int y) xy) =>
+            values = new int[] { xy.x, xy.y };
 
-        public Vector(int x, int y, int z)
-        {
-            values = new int[3];
-            values[0] = x;
-            values[1] = y;
-            values[2] = z;
-        }
+        public Vector(int x, int y, int z) =>
+            values = new int[] { x, y, z };
 
-        public Vector((int x, int y, int z) xyz)
-        {
-            values = new int[3];
-            values[0] = xyz.x;
-            values[1] = xyz.y;
-            values[2] = xyz.z;
-        }
+        public Vector((int x, int y, int z) xyz) =>
+            values = new int[] { xyz.x, xyz.y, xyz.z };
 
         public Vector(int[] values) =>
             this.values = values;
 
         public static Vector operator +(Vector left, int right)
         {
-            //totally unnecessary and unoptimal :-)
-            var offset = new Vector(left.Length).Fill(right);
-            return left + offset;
-        }
-
-        public static Vector operator +(Vector left, Vector right) =>
-            Translate(left, right);
-
-        public static Vector operator -(Vector left, int right)
-        {
-            var offset = new Vector(left.Length).Fill(right);
-            return left - offset;
-        }
-
-        public static Vector operator -(Vector left, Vector right) =>
-            Translate(left, -right);
-
-        public static Vector operator -(Vector unary)
-        {
-            var result = new Vector(unary.Length);
-            for (int i = 0; i < unary.Length; i++)
-                result[i] = -unary[i];
+            var result = new Vector(left.Length);
+            for (int i = 0; i < left.Length; i++)
+                result[i] = left[i] + right;
 
             return result;
         }
 
-        public static Vector operator *(int[,] left, Vector right) =>
-            Multiply(left, right);
-
-        private static Vector Translate(Vector vector, Vector offset) =>
-            MathRotation.GetTranslationMatrix(offset) * vector;
-
-        public Vector Rotate(Vector degrees) =>
-            MathRotation.GetRotationMatrix(degrees) * this;
-
-        private static Vector Multiply(int[,] a, Vector b)
+        public static Vector operator +(Vector left, Vector right)
         {
-            //A might have more columns than B has rows
-            //if so, we assume B is filled with 1's
-            //[a b c] * [x]            [x]
-            //[d e f]   [y]            [y]
-            //              --> assume [1]
-            //[x,y,z] can then be treated as [x,y,z,1] when multiplying augmented translation matrices
-            var aLen = a.GetLengths();
-            if (aLen.X < b.Length)
-            {
-                throw new Exception(
-                    $"Multiplication dimensions too incompatible." +
-                    $" Dimensions received: {aLen.X}x{aLen.Y}<- < ->{b.Length}x1");
-            }
+            var result = new Vector(left.Length);
+            for (int i = 0; i < left.Length; i++)
+                result[i] = left[i] + right[i];
 
-            var product = new Vector(aLen.Y);
-            for (int ay = 0; ay < aLen.Y; ay++)
-            {
-                for (int ax = 0; ax < aLen.X; ax++)
-                {
-                    //if b has too few rows, assume b[ax] is 1
-                    var b_ax = ax < b.Length ? b[ax] : 1;
-                    product[ay] += a[ay, ax] * b_ax;
-                }
-            }
-
-            return product;
+            return result;
+            //really slow:
+            //return Translate(left, right);
         }
 
-        public Vector Fill(int value)
+        public static Vector operator -(Vector left, Vector right)
         {
-            for (int i = 0; i < values.Length; i++)
-                values[i] = value;
+            var result = new Vector(left.Length);
+            for (int i = 0; i < left.Length; i++)
+                result[i] = left[i] - right[i];
+            
+            return result;
+        }
 
-            return this;
+        private static Vector Translate(Vector vector, Vector offset) =>
+            MathRotation.GetTranslationMatrixAugmented(offset) * vector;
+
+        public Vector Rotate(Vector degrees) =>
+            MathRotation.GetRotationMatrixAugmented(degrees) * this;
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Vector vector)
+            {
+                if (values.Length != vector.Length)
+                    return false;
+
+                for (int i = 0; i < values.Length; i++)
+                {
+                    if (values[i] != vector[i])
+                        return false;
+                }
+
+                return true;
+            }
+
+            return false;
+        }
+
+        //deterministic gethashcode
+        public override int GetHashCode()
+        {
+            //no collisions for x,y and x,y,z in 0..500
+            var hash = unchecked((int)2166136261);
+            for (int i = 0; i < values.Length; i++)
+                hash = (hash ^ values[i]) * 16_777_619;
+
+            return hash;
         }
 
         public override string ToString() => $"[{values.StringJoin(",")}]";

@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Xunit;
 
-namespace Polycube.Tests
+namespace PolycubeSolver.Tests
 {
     public class MathRotationTests
     {
@@ -141,9 +141,11 @@ namespace Polycube.Tests
         [InlineData(270, 270, 270, "[[0,0,1],[0,-1,0],[1,0,0]]")]
         public void Get_RotationMatrix(int rx, int ry, int rz, string expected)
         {
+            //todo: fix test for augmented rotation matrix
             var degrees = new Vector(rx, ry, rz);
             var result = MathRotation
                 .GetRotationMatrix(degrees)
+                .Grid
                 .ToJson();
 
             result.Should().Be(expected);
@@ -214,7 +216,7 @@ namespace Polycube.Tests
         [InlineData(270, 270,  90)]
         [InlineData(270, 270, 180)]
         [InlineData(270, 270, 270)]
-        public void Compare_4x4_RotationMatrix(int rx, int ry, int rz)
+        public void Compare_Augmented_RotationMatrix(int rx, int ry, int rz)
         {
             var degrees = new Vector(rx, ry, rz);
             var resultAug = MathRotation.GetRotationMatrixAugmented(degrees);
@@ -228,6 +230,7 @@ namespace Polycube.Tests
             //should be the same as this method
             var expected = MathRotation
                 .GetRotationMatrix(degrees)
+                .Grid
                 .ToJson();
 
             result3x3.Should().BeEquivalentTo(expected);
@@ -391,28 +394,17 @@ L", 24)]
         }
 
         [Fact]
-        public void Compare_TranslationMatrix()
-        {
-            var offset = new Vector(10, -20, 30);
-
-            var translate3D = MathRotation.GetTranslationMatrix(offset);
-            var translateXD = MathRotation.GetTranslationMatrixTest(offset);
-
-            translateXD.Should().BeEquivalentTo(translate3D);
-        }
-
-        [Fact]
         public void TranslationMatrix_2D()
         {
             var offset = new Vector(10, -20);
-            var expected = new int[,]
+            var expected = new Matrix(new int[,]
             {
                 { 1, 0,  10 },
                 { 0, 1, -20 },
               //{ 0, 0,   1 },
-            };
+            });
 
-            var result = MathRotation.GetTranslationMatrixTest(offset);
+            var result = MathRotation.GetTranslationMatrixAugmented(offset);
             result.Should().BeEquivalentTo(expected);
         }
 
@@ -421,15 +413,15 @@ L", 24)]
         {
             var offset = new Vector(10, -20, 30);
 
-            var result = MathRotation.GetTranslationMatrixTest(offset);
+            var result = MathRotation.GetTranslationMatrixAugmented(offset);
 
-            var expected = new int[,]
+            var expected = new Matrix(new int[,]
             {
                 { 1, 0, 0,  10 },
                 { 0, 1, 0, -20 },
                 { 0, 0, 1,  30 },
               //{ 0, 0, 0,   1 },
-            };
+            });
 
             result.Should().BeEquivalentTo(expected);
         }

@@ -7,7 +7,7 @@ using System.Threading.Channels;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Polycube.Tests
+namespace PolycubeSolver.Tests
 {
     public class PieceTests
     {

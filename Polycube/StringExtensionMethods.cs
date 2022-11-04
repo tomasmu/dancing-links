@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace Polycube
+namespace PolycubeSolver
 {
     public static class StringExtensionMethods
     {
@@ -66,40 +66,6 @@ namespace Polycube
                     }
                 }
             }
-        }
-
-        public static bool[,,] ToGrid(this string gridString, char blockedChar)
-        {
-            var doubleNewLine = @"(\r\n){2}|\r{2}|\n{2}";
-            var singleNewLine = @"(\r\n){1}|\r{1}|\n{1}";
-
-            var gridArray = gridString
-                .Trim()
-                .RegexSplit(doubleNewLine, RegexOptions.ExplicitCapture)
-                .Select(y => y
-                    .RegexSplit(singleNewLine, RegexOptions.ExplicitCapture)
-                        .Select(x => x.ToArray())
-                    .ToArray())
-                .ToArray();
-
-            var yLength = gridArray.Length;
-            var xLength = gridArray.Max(y => y.Length);
-            var zLength = gridArray.Max(y => y.Max(x => x.Length));
-
-            var grid = new bool[yLength, xLength, zLength];
-            for (int y = 0; y < yLength; y++)
-            {
-                for (int x = 0; x < xLength; x++)
-                {
-                    for (int z = 0; z < zLength; z++)
-                    {
-                        if (gridArray[y][x][z] == blockedChar)
-                            grid[y, x, z] = true;
-                    }
-                }
-            }
-
-            return grid;
         }
     }
 }

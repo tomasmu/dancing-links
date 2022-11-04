@@ -1,21 +1,10 @@
 ﻿using Xunit;
 using FluentAssertions;
 
-namespace Polycube.Tests
+namespace PolycubeSolver.Tests
 {
     public class ArrayExtensionTests
     {
-        [Fact]
-        public void GetLengths_2D()
-        {
-            var matrix = new int[5, 7];
-
-            var dimensions = matrix.GetLengths();
-
-            dimensions.X.Should().Be(7);
-            dimensions.Y.Should().Be(5);
-        }
-
         [Fact]
         public void GetLengths_3D()
         {
