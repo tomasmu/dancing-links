@@ -6,18 +6,6 @@ namespace PolycubeSolver.Tests
     public class ArrayExtensionTests
     {
         [Fact]
-        public void GetLengths_3D()
-        {
-            var matrix = new int[5, 7, 11];
-
-            var dimensions = matrix.GetLengths();
-
-            dimensions.X.Should().Be(7);
-            dimensions.Y.Should().Be(5);
-            dimensions.Z.Should().Be(11);
-        }
-
-        [Fact]
         public void MultiDimensional_Array_ToJson()
         {
             var array2D = new int[,] { { 1, 2 }, { 3, 4 } };

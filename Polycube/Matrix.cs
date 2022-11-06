@@ -97,5 +97,7 @@ namespace PolycubeSolver
 
             return product;
         }
+
+        //todo: ToString()
     }
 }

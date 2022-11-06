@@ -15,13 +15,6 @@ namespace PolycubeSolver.Tests
         }
 
         [Fact]
-        public void RegexRemoveTest()
-        {
-            var result = "hejsan".RegexRemove("[an-s]");
-            result.Should().Be("hej");
-        }
-
-        [Fact]
         public void TrimNewLine()
         {
             var result = @"
@@ -127,7 +120,7 @@ TTTT
         [1,1,1]                  /*  I   */
                                  /*      */
 "
-.RegexRemove(newLine_Whitespace_Comment_Pattern);
+.RegexReplace(newLine_Whitespace_Comment_Pattern, string.Empty);
 
             piece.Should().BeEquivalentTo(expected);
         }

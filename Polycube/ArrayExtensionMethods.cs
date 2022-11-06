@@ -13,6 +13,9 @@ namespace PolycubeSolver
         public static string ToJson<T>(this T source) => JsonConvert.SerializeObject(source);
         public static string ToJson<T>(this T[,] source) => JsonConvert.SerializeObject(source);
 
+        public static bool NotIn<T>(this T value, IEnumerable<T> collection) =>
+            !collection.Contains(value);
+
         public static IEnumerable<IEnumerable<Vector>> GetUniqueRotations(this IEnumerable<Vector> piecePoints)
         {
             var rotatedPieces = new List<IEnumerable<Vector>>();
