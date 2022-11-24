@@ -44,7 +44,7 @@ namespace PolycubeSolver.Tests
             var result = "first, second".RegexSplit(@",\s");
 
             var expected = new string[] { "first", "second" };
-            result.Should().BeEquivalentTo(expected);
+            result.Should().Equal(expected);
         }
 
         [Fact]
@@ -55,7 +55,7 @@ namespace PolycubeSolver.Tests
             //captured groups are included in the result by default
             //this is by design, but unexpected
             var unexpected = new string[] { "first", ", ", "second" };
-            result.Should().BeEquivalentTo(unexpected);
+            result.Should().Equal(unexpected);
         }
 
         [Fact]
@@ -66,7 +66,7 @@ namespace PolycubeSolver.Tests
 
             //non captured groups are not included
             //A and B are equivalent, but B has cleaner regex syntax
-            result_A.Should().BeEquivalentTo(result_B);
+            result_A.Should().Equal(result_B);
         }
 
         [Fact]
@@ -77,7 +77,7 @@ namespace PolycubeSolver.Tests
             //named captured groups are always included in the result
             //this is by design, but unexpected
             var unexpected = new string[] { "first", ", ", "second" };
-            result.Should().BeEquivalentTo(unexpected);
+            result.Should().Equal(unexpected);
         }
 
         //todo: move
@@ -122,7 +122,7 @@ TTTT
 "
 .RegexReplace(newLine_Whitespace_Comment_Pattern, string.Empty);
 
-            piece.Should().BeEquivalentTo(expected);
+            piece.Should().Be(expected);
         }
 
         [Fact]

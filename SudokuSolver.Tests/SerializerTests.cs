@@ -19,7 +19,7 @@ namespace SudokuSolver.Tests
             var serializer = new SudokuSerializer();
             var result = serializer.DeserializeBoard(boardArray);
 
-            result.Should().BeEquivalentTo(expectedBoard);
+            result.Should().Equal(expectedBoard);
         }
 
         [Fact]
@@ -31,7 +31,7 @@ namespace SudokuSolver.Tests
             var serializer = new SudokuSerializer();
             var result = serializer.DeserializeBoard(boardString);
 
-            result.Should().BeEquivalentTo(expectedBoard);
+            result.Should().Equal(expectedBoard);
         }
 
         [Fact]
@@ -43,7 +43,7 @@ namespace SudokuSolver.Tests
             var serializer = new SudokuSerializer() { Offset = 0 };
             var result = serializer.DeserializeBoard(boardArray);
 
-            result.Should().BeEquivalentTo(expectedBoard);
+            result.Should().Equal(expectedBoard);
         }
 
         [Fact]

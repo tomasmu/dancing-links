@@ -26,7 +26,6 @@ VVV";
             var polycube = new Polycube(cuboid, pieces);
 
             polycube.Solve(100);
-
             polycube.Solutions.Count.Should().Be(4);
         }
 

@@ -73,174 +73,112 @@ namespace PolycubeSolver.Tests
             result.Should().Be(expected);
         }
 
-        //todo: move
         [Theory]
-        [InlineData(  0,   0,   0, "[[1,0,0],[0,1,0],[0,0,1]]")]
-        [InlineData(  0,   0,  90, "[[0,-1,0],[1,0,0],[0,0,1]]")]
-        [InlineData(  0,   0, 180, "[[-1,0,0],[0,-1,0],[0,0,1]]")]
-        [InlineData(  0,   0, 270, "[[0,1,0],[-1,0,0],[0,0,1]]")]
-        [InlineData(  0,  90,   0, "[[0,0,1],[0,1,0],[-1,0,0]]")]
-        [InlineData(  0,  90,  90, "[[0,-1,0],[0,0,1],[-1,0,0]]")]
-        [InlineData(  0,  90, 180, "[[0,0,-1],[0,-1,0],[-1,0,0]]")]
-        [InlineData(  0,  90, 270, "[[0,1,0],[0,0,-1],[-1,0,0]]")]
-        [InlineData(  0, 180,   0, "[[-1,0,0],[0,1,0],[0,0,-1]]")]
-        [InlineData(  0, 180,  90, "[[0,-1,0],[-1,0,0],[0,0,-1]]")]
-        [InlineData(  0, 180, 180, "[[1,0,0],[0,-1,0],[0,0,-1]]")]
-        [InlineData(  0, 180, 270, "[[0,1,0],[1,0,0],[0,0,-1]]")]
-        [InlineData(  0, 270,   0, "[[0,0,-1],[0,1,0],[1,0,0]]")]
-        [InlineData(  0, 270,  90, "[[0,-1,0],[0,0,-1],[1,0,0]]")]
-        [InlineData(  0, 270, 180, "[[0,0,1],[0,-1,0],[1,0,0]]")]
-        [InlineData(  0, 270, 270, "[[0,1,0],[0,0,1],[1,0,0]]")]
-        [InlineData( 90,   0,   0, "[[1,0,0],[0,0,-1],[0,1,0]]")]
-        [InlineData( 90,   0,  90, "[[0,0,1],[1,0,0],[0,1,0]]")]
-        [InlineData( 90,   0, 180, "[[-1,0,0],[0,0,1],[0,1,0]]")]
-        [InlineData( 90,   0, 270, "[[0,0,-1],[-1,0,0],[0,1,0]]")]
-        [InlineData( 90,  90,   0, "[[0,1,0],[0,0,-1],[-1,0,0]]")]
-        [InlineData( 90,  90,  90, "[[0,0,1],[0,1,0],[-1,0,0]]")]
-        [InlineData( 90,  90, 180, "[[0,-1,0],[0,0,1],[-1,0,0]]")]
-        [InlineData( 90,  90, 270, "[[0,0,-1],[0,-1,0],[-1,0,0]]")]
-        [InlineData( 90, 180,   0, "[[-1,0,0],[0,0,-1],[0,-1,0]]")]
-        [InlineData( 90, 180,  90, "[[0,0,1],[-1,0,0],[0,-1,0]]")]
-        [InlineData( 90, 180, 180, "[[1,0,0],[0,0,1],[0,-1,0]]")]
-        [InlineData( 90, 180, 270, "[[0,0,-1],[1,0,0],[0,-1,0]]")]
-        [InlineData( 90, 270,   0, "[[0,-1,0],[0,0,-1],[1,0,0]]")]
-        [InlineData( 90, 270,  90, "[[0,0,1],[0,-1,0],[1,0,0]]")]
-        [InlineData( 90, 270, 180, "[[0,1,0],[0,0,1],[1,0,0]]")]
-        [InlineData( 90, 270, 270, "[[0,0,-1],[0,1,0],[1,0,0]]")]
-        [InlineData(180,   0,   0, "[[1,0,0],[0,-1,0],[0,0,-1]]")]
-        [InlineData(180,   0,  90, "[[0,1,0],[1,0,0],[0,0,-1]]")]
-        [InlineData(180,   0, 180, "[[-1,0,0],[0,1,0],[0,0,-1]]")]
-        [InlineData(180,   0, 270, "[[0,-1,0],[-1,0,0],[0,0,-1]]")]
-        [InlineData(180,  90,   0, "[[0,0,-1],[0,-1,0],[-1,0,0]]")]
-        [InlineData(180,  90,  90, "[[0,1,0],[0,0,-1],[-1,0,0]]")]
-        [InlineData(180,  90, 180, "[[0,0,1],[0,1,0],[-1,0,0]]")]
-        [InlineData(180,  90, 270, "[[0,-1,0],[0,0,1],[-1,0,0]]")]
-        [InlineData(180, 180,   0, "[[-1,0,0],[0,-1,0],[0,0,1]]")]
-        [InlineData(180, 180,  90, "[[0,1,0],[-1,0,0],[0,0,1]]")]
-        [InlineData(180, 180, 180, "[[1,0,0],[0,1,0],[0,0,1]]")]
-        [InlineData(180, 180, 270, "[[0,-1,0],[1,0,0],[0,0,1]]")]
-        [InlineData(180, 270,   0, "[[0,0,1],[0,-1,0],[1,0,0]]")]
-        [InlineData(180, 270,  90, "[[0,1,0],[0,0,1],[1,0,0]]")]
-        [InlineData(180, 270, 180, "[[0,0,-1],[0,1,0],[1,0,0]]")]
-        [InlineData(180, 270, 270, "[[0,-1,0],[0,0,-1],[1,0,0]]")]
-        [InlineData(270,   0,   0, "[[1,0,0],[0,0,1],[0,-1,0]]")]
-        [InlineData(270,   0,  90, "[[0,0,-1],[1,0,0],[0,-1,0]]")]
-        [InlineData(270,   0, 180, "[[-1,0,0],[0,0,-1],[0,-1,0]]")]
-        [InlineData(270,   0, 270, "[[0,0,1],[-1,0,0],[0,-1,0]]")]
-        [InlineData(270,  90,   0, "[[0,-1,0],[0,0,1],[-1,0,0]]")]
-        [InlineData(270,  90,  90, "[[0,0,-1],[0,-1,0],[-1,0,0]]")]
-        [InlineData(270,  90, 180, "[[0,1,0],[0,0,-1],[-1,0,0]]")]
-        [InlineData(270,  90, 270, "[[0,0,1],[0,1,0],[-1,0,0]]")]
-        [InlineData(270, 180,   0, "[[-1,0,0],[0,0,1],[0,1,0]]")]
-        [InlineData(270, 180,  90, "[[0,0,-1],[-1,0,0],[0,1,0]]")]
-        [InlineData(270, 180, 180, "[[1,0,0],[0,0,-1],[0,1,0]]")]
-        [InlineData(270, 180, 270, "[[0,0,1],[1,0,0],[0,1,0]]")]
-        [InlineData(270, 270,   0, "[[0,1,0],[0,0,1],[1,0,0]]")]
-        [InlineData(270, 270,  90, "[[0,0,-1],[0,1,0],[1,0,0]]")]
-        [InlineData(270, 270, 180, "[[0,-1,0],[0,0,-1],[1,0,0]]")]
-        [InlineData(270, 270, 270, "[[0,0,1],[0,-1,0],[1,0,0]]")]
-        public void Get_RotationMatrix(int rx, int ry, int rz, string expected)
+        [InlineData(  0,   0,   0, "[[1,0,0,0],[0,1,0,0],[0,0,1,0]]")]
+        [InlineData(  0,   0,  90, "[[0,-1,0,0],[1,0,0,0],[0,0,1,0]]")]
+        [InlineData(  0,   0, 180, "[[-1,0,0,0],[0,-1,0,0],[0,0,1,0]]")]
+        [InlineData(  0,   0, 270, "[[0,1,0,0],[-1,0,0,0],[0,0,1,0]]")]
+        [InlineData(  0,  90,   0, "[[0,0,1,0],[0,1,0,0],[-1,0,0,0]]")]
+        [InlineData(  0,  90,  90, "[[0,-1,0,0],[0,0,1,0],[-1,0,0,0]]")]
+        [InlineData(  0,  90, 180, "[[0,0,-1,0],[0,-1,0,0],[-1,0,0,0]]")]
+        [InlineData(  0,  90, 270, "[[0,1,0,0],[0,0,-1,0],[-1,0,0,0]]")]
+        [InlineData(  0, 180,   0, "[[-1,0,0,0],[0,1,0,0],[0,0,-1,0]]")]
+        [InlineData(  0, 180,  90, "[[0,-1,0,0],[-1,0,0,0],[0,0,-1,0]]")]
+        [InlineData(  0, 180, 180, "[[1,0,0,0],[0,-1,0,0],[0,0,-1,0]]")]
+        [InlineData(  0, 180, 270, "[[0,1,0,0],[1,0,0,0],[0,0,-1,0]]")]
+        [InlineData(  0, 270,   0, "[[0,0,-1,0],[0,1,0,0],[1,0,0,0]]")]
+        [InlineData(  0, 270,  90, "[[0,-1,0,0],[0,0,-1,0],[1,0,0,0]]")]
+        [InlineData(  0, 270, 180, "[[0,0,1,0],[0,-1,0,0],[1,0,0,0]]")]
+        [InlineData(  0, 270, 270, "[[0,1,0,0],[0,0,1,0],[1,0,0,0]]")]
+        [InlineData( 90,   0,   0, "[[1,0,0,0],[0,0,-1,0],[0,1,0,0]]")]
+        [InlineData( 90,   0,  90, "[[0,0,1,0],[1,0,0,0],[0,1,0,0]]")]
+        [InlineData( 90,   0, 180, "[[-1,0,0,0],[0,0,1,0],[0,1,0,0]]")]
+        [InlineData( 90,   0, 270, "[[0,0,-1,0],[-1,0,0,0],[0,1,0,0]]")]
+        [InlineData( 90,  90,   0, "[[0,1,0,0],[0,0,-1,0],[-1,0,0,0]]")]
+        [InlineData( 90,  90,  90, "[[0,0,1,0],[0,1,0,0],[-1,0,0,0]]")]
+        [InlineData( 90,  90, 180, "[[0,-1,0,0],[0,0,1,0],[-1,0,0,0]]")]
+        [InlineData( 90,  90, 270, "[[0,0,-1,0],[0,-1,0,0],[-1,0,0,0]]")]
+        [InlineData( 90, 180,   0, "[[-1,0,0,0],[0,0,-1,0],[0,-1,0,0]]")]
+        [InlineData( 90, 180,  90, "[[0,0,1,0],[-1,0,0,0],[0,-1,0,0]]")]
+        [InlineData( 90, 180, 180, "[[1,0,0,0],[0,0,1,0],[0,-1,0,0]]")]
+        [InlineData( 90, 180, 270, "[[0,0,-1,0],[1,0,0,0],[0,-1,0,0]]")]
+        [InlineData( 90, 270,   0, "[[0,-1,0,0],[0,0,-1,0],[1,0,0,0]]")]
+        [InlineData( 90, 270,  90, "[[0,0,1,0],[0,-1,0,0],[1,0,0,0]]")]
+        [InlineData( 90, 270, 180, "[[0,1,0,0],[0,0,1,0],[1,0,0,0]]")]
+        [InlineData( 90, 270, 270, "[[0,0,-1,0],[0,1,0,0],[1,0,0,0]]")]
+        [InlineData(180,   0,   0, "[[1,0,0,0],[0,-1,0,0],[0,0,-1,0]]")]
+        [InlineData(180,   0,  90, "[[0,1,0,0],[1,0,0,0],[0,0,-1,0]]")]
+        [InlineData(180,   0, 180, "[[-1,0,0,0],[0,1,0,0],[0,0,-1,0]]")]
+        [InlineData(180,   0, 270, "[[0,-1,0,0],[-1,0,0,0],[0,0,-1,0]]")]
+        [InlineData(180,  90,   0, "[[0,0,-1,0],[0,-1,0,0],[-1,0,0,0]]")]
+        [InlineData(180,  90,  90, "[[0,1,0,0],[0,0,-1,0],[-1,0,0,0]]")]
+        [InlineData(180,  90, 180, "[[0,0,1,0],[0,1,0,0],[-1,0,0,0]]")]
+        [InlineData(180,  90, 270, "[[0,-1,0,0],[0,0,1,0],[-1,0,0,0]]")]
+        [InlineData(180, 180,   0, "[[-1,0,0,0],[0,-1,0,0],[0,0,1,0]]")]
+        [InlineData(180, 180,  90, "[[0,1,0,0],[-1,0,0,0],[0,0,1,0]]")]
+        [InlineData(180, 180, 180, "[[1,0,0,0],[0,1,0,0],[0,0,1,0]]")]
+        [InlineData(180, 180, 270, "[[0,-1,0,0],[1,0,0,0],[0,0,1,0]]")]
+        [InlineData(180, 270,   0, "[[0,0,1,0],[0,-1,0,0],[1,0,0,0]]")]
+        [InlineData(180, 270,  90, "[[0,1,0,0],[0,0,1,0],[1,0,0,0]]")]
+        [InlineData(180, 270, 180, "[[0,0,-1,0],[0,1,0,0],[1,0,0,0]]")]
+        [InlineData(180, 270, 270, "[[0,-1,0,0],[0,0,-1,0],[1,0,0,0]]")]
+        [InlineData(270,   0,   0, "[[1,0,0,0],[0,0,1,0],[0,-1,0,0]]")]
+        [InlineData(270,   0,  90, "[[0,0,-1,0],[1,0,0,0],[0,-1,0,0]]")]
+        [InlineData(270,   0, 180, "[[-1,0,0,0],[0,0,-1,0],[0,-1,0,0]]")]
+        [InlineData(270,   0, 270, "[[0,0,1,0],[-1,0,0,0],[0,-1,0,0]]")]
+        [InlineData(270,  90,   0, "[[0,-1,0,0],[0,0,1,0],[-1,0,0,0]]")]
+        [InlineData(270,  90,  90, "[[0,0,-1,0],[0,-1,0,0],[-1,0,0,0]]")]
+        [InlineData(270,  90, 180, "[[0,1,0,0],[0,0,-1,0],[-1,0,0,0]]")]
+        [InlineData(270,  90, 270, "[[0,0,1,0],[0,1,0,0],[-1,0,0,0]]")]
+        [InlineData(270, 180,   0, "[[-1,0,0,0],[0,0,1,0],[0,1,0,0]]")]
+        [InlineData(270, 180,  90, "[[0,0,-1,0],[-1,0,0,0],[0,1,0,0]]")]
+        [InlineData(270, 180, 180, "[[1,0,0,0],[0,0,-1,0],[0,1,0,0]]")]
+        [InlineData(270, 180, 270, "[[0,0,1,0],[1,0,0,0],[0,1,0,0]]")]
+        [InlineData(270, 270,   0, "[[0,1,0,0],[0,0,1,0],[1,0,0,0]]")]
+        [InlineData(270, 270,  90, "[[0,0,-1,0],[0,1,0,0],[1,0,0,0]]")]
+        [InlineData(270, 270, 180, "[[0,-1,0,0],[0,0,-1,0],[1,0,0,0]]")]
+        [InlineData(270, 270, 270, "[[0,0,1,0],[0,-1,0,0],[1,0,0,0]]")]
+        public void Get_RotationMatrix_Augmented(int rx, int ry, int rz, string expected)
         {
-            //todo: fix test for augmented rotation matrix
             var degrees = new Vector(rx, ry, rz);
             var result = MathRotation
                 .GetRotationMatrix(degrees)
-                .Grid
-                .ToJson();
+                .ToString();
 
             result.Should().Be(expected);
         }
 
-        [Theory]
-        [InlineData(  0,   0,   0)]
-        [InlineData(  0,   0,  90)]
-        [InlineData(  0,   0, 180)]
-        [InlineData(  0,   0, 270)]
-        [InlineData(  0,  90,   0)]
-        [InlineData(  0,  90,  90)]
-        [InlineData(  0,  90, 180)]
-        [InlineData(  0,  90, 270)]
-        [InlineData(  0, 180,   0)]
-        [InlineData(  0, 180,  90)]
-        [InlineData(  0, 180, 180)]
-        [InlineData(  0, 180, 270)]
-        [InlineData(  0, 270,   0)]
-        [InlineData(  0, 270,  90)]
-        [InlineData(  0, 270, 180)]
-        [InlineData(  0, 270, 270)]
-        [InlineData( 90,   0,   0)]
-        [InlineData( 90,   0,  90)]
-        [InlineData( 90,   0, 180)]
-        [InlineData( 90,   0, 270)]
-        [InlineData( 90,  90,   0)]
-        [InlineData( 90,  90,  90)]
-        [InlineData( 90,  90, 180)]
-        [InlineData( 90,  90, 270)]
-        [InlineData( 90, 180,   0)]
-        [InlineData( 90, 180,  90)]
-        [InlineData( 90, 180, 180)]
-        [InlineData( 90, 180, 270)]
-        [InlineData( 90, 270,   0)]
-        [InlineData( 90, 270,  90)]
-        [InlineData( 90, 270, 180)]
-        [InlineData( 90, 270, 270)]
-        [InlineData(180,   0,   0)]
-        [InlineData(180,   0,  90)]
-        [InlineData(180,   0, 180)]
-        [InlineData(180,   0, 270)]
-        [InlineData(180,  90,   0)]
-        [InlineData(180,  90,  90)]
-        [InlineData(180,  90, 180)]
-        [InlineData(180,  90, 270)]
-        [InlineData(180, 180,   0)]
-        [InlineData(180, 180,  90)]
-        [InlineData(180, 180, 180)]
-        [InlineData(180, 180, 270)]
-        [InlineData(180, 270,   0)]
-        [InlineData(180, 270,  90)]
-        [InlineData(180, 270, 180)]
-        [InlineData(180, 270, 270)]
-        [InlineData(270,   0,   0)]
-        [InlineData(270,   0,  90)]
-        [InlineData(270,   0, 180)]
-        [InlineData(270,   0, 270)]
-        [InlineData(270,  90,   0)]
-        [InlineData(270,  90,  90)]
-        [InlineData(270,  90, 180)]
-        [InlineData(270,  90, 270)]
-        [InlineData(270, 180,   0)]
-        [InlineData(270, 180,  90)]
-        [InlineData(270, 180, 180)]
-        [InlineData(270, 180, 270)]
-        [InlineData(270, 270,   0)]
-        [InlineData(270, 270,  90)]
-        [InlineData(270, 270, 180)]
-        [InlineData(270, 270, 270)]
-        public void Compare_Augmented_RotationMatrix(int rx, int ry, int rz)
+        [Fact]
+        public void Count_Unique_RotationMatrices_No_Rotation()
         {
-            var degrees = new Vector(rx, ry, rz);
-            var resultAug = MathRotation.GetRotationMatrixAugmented(degrees);
-            //look at upper 3x3
-            var result3x3 = new int[,] {
-                { resultAug[0, 0], resultAug[0, 1], resultAug[0, 2], },
-                { resultAug[1, 0], resultAug[1, 1], resultAug[1, 2], },
-                { resultAug[2, 0], resultAug[2, 1], resultAug[2, 2], },
-            }.ToJson();
-
-            //should be the same as this method
-            var expected = MathRotation
-                .GetRotationMatrix(degrees)
-                .Grid
-                .ToJson();
-
-            result3x3.Should().BeEquivalentTo(expected);
+            var degrees = new Vector(0, 0, 0).AsEnumerable();
+            var rotations = MathRotation.GetUniqueRotationMatrices(degrees);
+            rotations.Count().Should().Be(1);
         }
 
         [Fact]
-        public void Rotation_Matrices_Unique_Count()
+        public void Count_Unique_RotationMatrices_One_Axis()
         {
-            var rotations = MathRotation.GetUniqueRotationMatrices();
+            var degrees = Enumerable.Range(0, 4).Select(y => new Vector(0, 90 * y, 0));
+            var rotations = MathRotation.GetUniqueRotationMatrices(degrees);
+            rotations.Count().Should().Be(4);
+        }
 
+        [Fact]
+        public void Count_Unique_RotationMatrices_Two_Axes()
+        {
+            var r = Enumerable.Range(0, 4).Select(n => 90 * n);
+            var degrees = r.Select(y => r.Select(z => new Vector(0, y, z))).SelectMany(v => v);
+            var rotations = MathRotation.GetUniqueRotationMatrices(degrees);
+            rotations.Count().Should().Be(16);
+        }
+
+        [Fact]
+        public void Count_Unique_RotationMatrices_Three_Axes()
+        {
+            var r = Enumerable.Range(0, 4).Select(n => 90 * n);
+            var degrees = r.Select(x => r.Select(y => r.Select(z => new Vector(x, y, z))).SelectMany(v => v)).SelectMany(v => v);
+            var rotations = MathRotation.GetUniqueRotationMatrices(degrees);
             rotations.Count().Should().Be(24);
         }
 
@@ -298,9 +236,9 @@ V", 12)]
         [InlineData(@"
 LLL
 L", 24)]
-        public void Rotations_Unique(string piece, int expectedUnique)
+        public void Rotations_Unique(string pieceString, int expectedUnique)
         {
-            var rotations = piece.ToPoints('-').GetUniqueRotations();
+            var rotations = new Piece(pieceString).GetRotations();
 
             rotations.Count().Should().Be(expectedUnique);
         }
@@ -377,8 +315,7 @@ L", 24)]
             var rotated = point.Rotate(degrees);
 
             var expected = new Vector(xe, ye, ze);
-
-            rotated.Should().BeEquivalentTo(expected);
+            rotated.Should().Be(expected);
         }
 
         [Fact]
@@ -389,31 +326,29 @@ L", 24)]
             var translated = point + offset;
 
             var expected = new Vector(2 + 10, 3 - 20, 4 + 30);
-
-            translated.Should().BeEquivalentTo(expected);
+            translated.Should().Be(expected);
         }
 
         [Fact]
         public void TranslationMatrix_2D()
         {
             var offset = new Vector(10, -20);
+            var result = MathRotation.GetTranslationMatrix(offset);
+
             var expected = new Matrix(new int[,]
             {
                 { 1, 0,  10 },
                 { 0, 1, -20 },
               //{ 0, 0,   1 },
             });
-
-            var result = MathRotation.GetTranslationMatrixAugmented(offset);
-            result.Should().BeEquivalentTo(expected);
+            result.Should().Be(expected);
         }
 
         [Fact]
         public void TranslationMatrix_3D()
         {
             var offset = new Vector(10, -20, 30);
-
-            var result = MathRotation.GetTranslationMatrixAugmented(offset);
+            var result = MathRotation.GetTranslationMatrix(offset);
 
             var expected = new Matrix(new int[,]
             {
@@ -422,8 +357,7 @@ L", 24)]
                 { 0, 0, 1,  30 },
               //{ 0, 0, 0,   1 },
             });
-
-            result.Should().BeEquivalentTo(expected);
+            result.Should().Be(expected);
         }
 
         [Fact]
@@ -433,7 +367,6 @@ L", 24)]
                 new Vector( 1,  2,  3),
                 new Vector(-4, -5, -6)
             };
-
             var offset = new Vector(-2, 3, 4);
             var rotatedInOrigo = points.Select(point => point + offset);
 
@@ -442,8 +375,7 @@ L", 24)]
                 new Vector( -1,  5,  7),
                 new Vector( -6, -2, -2),
             };
-
-            rotatedInOrigo.Should().BeEquivalentTo(expected);
+            rotatedInOrigo.Should().Equal(expected);
         }
 
         [Fact]
@@ -457,7 +389,6 @@ L", 24)]
             };
 
             var min = points.GetAxesMinValues();
-
             min.X.Should().Be(-1);
             min.Y.Should().Be(-2);
         }
@@ -472,17 +403,13 @@ L", 24)]
                 new Vector(  0, -2),
             };
 
-            var max = points.GetAxesMaxValues();
-            
-            max.Length.Should().Be(2);
+            var (min, max) = points.GetAxesMinMaxValues();
 
+            max.Length.Should().Be(2);
             max.X.Should().Be(1);
             max[0].Should().Be(1);
-            max[0, 0].Should().Be(1);
-            
             max.Y.Should().Be(2);
             max[1].Should().Be(2);
-            max[1, 0].Should().Be(2);
         }
  
         [Fact]
@@ -514,7 +441,6 @@ L", 24)]
                 new Vector( 0,  2,  0),
                 new Vector( 0,  0,  3),
             };
-
             var origo = points.TranslateToOrigo();
 
             var expected = new List<Vector> {
@@ -524,8 +450,7 @@ L", 24)]
                 new Vector( 1,  4,  3),
                 new Vector( 1,  2,  6),
             };
-
-            origo.Should().BeEquivalentTo(expected);
+            origo.Should().Equal(expected);
         }
     }
 }

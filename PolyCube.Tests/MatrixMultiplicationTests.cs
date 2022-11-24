@@ -21,6 +21,7 @@ namespace PolycubeSolver.Tests
                 { 121, 122 },
                 { 131, 132 },
             });
+            var result = a * b;
 
             var expected = new Matrix(new int[,]
             {
@@ -29,10 +30,7 @@ namespace PolycubeSolver.Tests
                 { (31*111 + 32*121 + 33*131), (31*112 + 32*122 + 33*132) },
                 { (41*111 + 42*121 + 43*131), (41*112 + 42*122 + 43*132) },
             });
-
-            var result = a * b;
-
-            result.Should().BeEquivalentTo(expected);
+            result.Should().Be(expected);
         }
 
         [Fact]
@@ -51,6 +49,7 @@ namespace PolycubeSolver.Tests
                 { 121, 122 },
               //{ 131, 132 }, //if these are missing { 1, 1 } is assumed
             });
+            var result = a * b;
 
             var expected = new Matrix(new int[,]
             {
@@ -59,10 +58,7 @@ namespace PolycubeSolver.Tests
                 { (31*111 + 32*121 + 33*1), (31*112 + 32*122 + 33*1) },
                 { (41*111 + 42*121 + 43*1), (41*112 + 42*122 + 43*1) },
             });
-
-            var result = a * b;
-
-            result.Should().BeEquivalentTo(expected);
+            result.Should().Be(expected);
         }
 
         [Fact]
@@ -84,8 +80,7 @@ namespace PolycubeSolver.Tests
             expected[1] = 4*100 + 5*10 + 6*1;
             expected[2] = 9*100 + 8*10 + 7*1;
             expected[3] = 6*100 + 5*10 + 4*1;
-
-            result.Should().BeEquivalentTo(expected);
+            result.Should().Be(expected);
         }
 
         [Fact]
@@ -94,11 +89,10 @@ namespace PolycubeSolver.Tests
             var degrees = new Vector(90, 90, 90);
             var matrix = MathRotation.GetRotationMatrix(degrees);
             var point = new Vector(2, 3, 4);
-
             var result = matrix * point;
 
             var expected = new Vector(4, 3, -2);
-            result.Should().BeEquivalentTo(expected);
+            result.Should().Be(expected);
         }
 
 
@@ -118,6 +112,7 @@ namespace PolycubeSolver.Tests
                 { 121, 122 },
                 { 131, 132 },
             });
+            var result = a * b;
 
             var expected = new Matrix(new int[,]
             {
@@ -126,10 +121,7 @@ namespace PolycubeSolver.Tests
                 { (31*111 + 32*121 + 33*131), (31*112 + 32*122 + 33*132) },
                 { (41*111 + 42*121 + 43*131), (41*112 + 42*122 + 43*132) },
             });
-
-            var result = a * b;
-
-            result.Should().BeEquivalentTo(expected);
+            result.Should().Be(expected);
         }
     }
 }

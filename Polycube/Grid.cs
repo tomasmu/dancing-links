@@ -13,7 +13,6 @@ namespace PolycubeSolver
         public Cuboid(bool[,,] grid)
         {
             Grid = grid;
-
             Init();
         }
 
@@ -21,7 +20,6 @@ namespace PolycubeSolver
         {
             var blockedChar = '-';
             Grid = ToGrid(grid, blockedChar);
-
             Init();
         }
 
@@ -32,23 +30,16 @@ namespace PolycubeSolver
             MapPoints(Grid);
         }
 
-        private Vector GetLengths() =>
-            new(Grid.GetLength(1), Grid.GetLength(0), Grid.GetLength(2));
+        private Vector GetLengths() => new(Grid.GetLength(1), Grid.GetLength(0), Grid.GetLength(2));
 
         private int CountCubies()
         {
             var cubieCount = 0;
             for (int y = 0; y < Length.Y; y++)
-            {
                 for (int x = 0; x < Length.X; x++)
-                {
                     for (int z = 0; z < Length.Z; z++)
-                    {
                         if (!Grid[y, x, z])
                             cubieCount++;
-                    }
-                }
-            }
 
             return cubieCount;
         }
@@ -72,14 +63,9 @@ namespace PolycubeSolver
                         var coordinate = new Vector(x, y, z);
                         //if (0,0,1) is blocked, then 0,1,2,... maps to (0,0,0),(0,0,2),(0,0,3),...
                         if (grid[y, x, z])
-                        {
                             BlockedPoints.Add(coordinate);
-                        }
                         else
-                        {
-                            MapPointToIndex[coordinate] = index;
-                            index++;
-                        }
+                            MapPointToIndex[coordinate] = index++;
                     }
                 }
             }
@@ -105,16 +91,10 @@ namespace PolycubeSolver
 
             var grid = new bool[yLength, xLength, zLength];
             for (int y = 0; y < gridArray.Length; y++)
-            {
                 for (int x = 0; x < gridArray[y].Length; x++)
-                {
                     for (int z = 0; z < gridArray[y][x].Length; z++)
-                    {
                         if (gridArray[y][x][z] == blockedChar)
                             grid[y, x, z] = true;
-                    }
-                }
-            }
 
             return grid;
         }

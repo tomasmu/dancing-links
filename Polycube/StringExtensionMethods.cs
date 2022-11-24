@@ -37,15 +37,9 @@ namespace PolycubeSolver
             {
                 var xs = ys[y].RegexSplit(singleNewLine, RegexOptions.ExplicitCapture);
                 for (int x = 0; x < xs.Length; x++)
-                {
                     for (int z = 0; z < xs[x].Length; z++)
-                    {
-                        if (xs[x][z].NotIn(ignoreChars))
-                        {
-                            yield return new Vector(x, y, z);    
-                        }
-                    }
-                }
+                        if (!ignoreChars.Contains(xs[x][z]))
+                            yield return new Vector(x, y, z);
             }
         }
     }

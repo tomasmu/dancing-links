@@ -1,8 +1,11 @@
 ﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PolycubeSolver
 {
-    public class Vector
+    public class Vector : IComparable, IComparable<Vector>, IEquatable<Vector>
     {
         private readonly int[] values;
 
@@ -14,49 +17,21 @@ namespace PolycubeSolver
             set => values[i] = value;
         }
 
-        public int this[int i, int j]
-        {
-            //handle as column vector as well, used it to not break matrix multiplication
-            //todo: should probably not silently ignore j if it's != 0 :D
-            get => values[i];
-            set => values[i] = value;
-        }
-
         public int X => values[0];
         public int Y => values[1];
         public int Z => values[2];
 
-        public void Deconstruct(out int x, out int y)
-        {
-            x = values[0];
-            y = values[1];
-        }
-
-        public void Deconstruct(out int x, out int y, out int z)
-        {
-            x = values[0];
-            y = values[1];
-            z = values[2];
-        }
-
         [JsonConstructor]
-        public Vector(int length) =>
-            values = new int[length];
+        public Vector(int length) => values = new int[length];
+        public Vector(int x, int y) => values = new int[] { x, y };
+        public Vector(int x, int y, int z) => values = new int[] { x, y, z };
+        public Vector((int x, int y) xy) => values = new int[] { xy.x, xy.y };
+        public Vector((int x, int y, int z) xyz) => values = new int[] { xyz.x, xyz.y, xyz.z };
+        public Vector(int[] values) => this.values = values.ToArray();
+        public Vector(Vector vector) => values = vector.values.ToArray();
 
-        public Vector(int x, int y) =>
-            values = new int[] { x, y };
-
-        public Vector((int x, int y) xy) =>
-            values = new int[] { xy.x, xy.y };
-
-        public Vector(int x, int y, int z) =>
-            values = new int[] { x, y, z };
-
-        public Vector((int x, int y, int z) xyz) =>
-            values = new int[] { xyz.x, xyz.y, xyz.z };
-
-        public Vector(int[] values) =>
-            this.values = values;
+        public void Deconstruct(out int x, out int y) => (x, y) = (values[0], values[1]);
+        public void Deconstruct(out int x, out int y, out int z) => (x, y, z) = (values[0], values[1], values[2]);
 
         public static Vector operator +(Vector left, int right)
         {
@@ -74,8 +49,7 @@ namespace PolycubeSolver
                 result[i] = left[i] + right[i];
 
             return result;
-            //really slow:
-            //return Translate(left, right);
+            //return Translate(left, right);    //slow
         }
 
         public static Vector operator -(Vector left, Vector right)
@@ -88,41 +62,73 @@ namespace PolycubeSolver
         }
 
         private static Vector Translate(Vector vector, Vector offset) =>
-            MathRotation.GetTranslationMatrixAugmented(offset) * vector;
+            MathRotation.GetTranslationMatrix(offset) * vector;
 
         public Vector Rotate(Vector degrees) =>
-            MathRotation.GetRotationMatrixAugmented(degrees) * this;
+            MathRotation.GetRotationMatrix(degrees) * this;
 
-        public override bool Equals(object obj)
+        public static bool operator >(Vector left, Vector right) => Compare(left, right) > 0;
+        public static bool operator <(Vector left, Vector right) => Compare(left, right) < 0;
+        public static bool operator >=(Vector left, Vector right) => Compare(left, right) >= 0;
+        public static bool operator <=(Vector left, Vector right) => Compare(left, right) <= 0;
+
+        public static bool operator !=(Vector left, Vector right) => !(left == right);
+        public static bool operator ==(Vector left, Vector right) =>
+            left is null
+            ? right is null
+            : left.Equals(right);
+
+        public override bool Equals(object obj) => Equals(obj as Vector);
+        public bool Equals(Vector right) => CompareTo(right) == 0;
+
+        public static int Compare(Vector left, Vector right) =>
+            left is null
+            ? -1
+            : left.CompareTo(right);
+
+        public int CompareTo(object obj) => CompareTo(obj as Vector);
+
+        public int CompareTo(Vector right)
         {
-            if (obj is Vector vector)
+            if (right is null)
+                return 1;   //null sorted first
+
+            if (ReferenceEquals(this, right))
+                return 0;
+
+            var length = Math.Min(values.Length, right.Length);
+            for (int i = 0; i < length; i++)
             {
-                if (values.Length != vector.Length)
-                    return false;
-
-                for (int i = 0; i < values.Length; i++)
-                {
-                    if (values[i] != vector[i])
-                        return false;
-                }
-
-                return true;
+                if (values[i] > right[i])
+                    return 1;
+                if (values[i] < right[i])
+                    return -1;
             }
 
-            return false;
+            //sort short before long
+            if (values.Length > right.Length)
+                return 1;
+            if (values.Length < right.Length)
+                return -1;
+
+            return 0;
         }
 
-        //deterministic gethashcode
         public override int GetHashCode()
         {
-            //no collisions for x,y and x,y,z in 0..500
-            var hash = unchecked((int)2166136261);
+            //deterministic gethashcode
+            var hash = unchecked((int)2_166_136_261);
             for (int i = 0; i < values.Length; i++)
                 hash = (hash ^ values[i]) * 16_777_619;
 
             return hash;
         }
 
-        public override string ToString() => $"[{values.StringJoin(",")}]";
+        public IEnumerable<Vector> AsEnumerable()
+        {
+            yield return this;  // :D
+        }
+
+        public override string ToString() => JsonConvert.SerializeObject(values);
     }
 }

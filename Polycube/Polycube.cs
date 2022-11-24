@@ -14,26 +14,29 @@ namespace PolycubeSolver
         public Cuboid Cuboid { get; }
         public Piece[] Pieces { get; }
 
+        private readonly char _blockedChar;
+
         public Polycube(Cuboid cuboid, IEnumerable<Piece> pieces)
         {
             Cuboid = cuboid;
             Pieces = pieces.ToArray();
 
-            _pieceCubieCount = pieces.Sum(p => p.Points.Count());
+            _blockedChar = '-';
+
+            _pieceCubieCount = Pieces.Sum(p => p.Points.Count);
             ThrowIfExactCoverIsImpossible();
 
-            _pieceCount = pieces.Count();
-
+            _pieceCount = Pieces.Length;
             _constraintColumnCount = _pieceCount + Cuboid.CubieCount;
 
-            CreateConstraintMatrix(pieces);
+            CreateConstraintMatrix(Pieces);
         }
 
         public void ThrowIfExactCoverIsImpossible()
         {
             if (Cuboid.CubieCount != _pieceCubieCount)
             {
-                var pieceCounts = Pieces.Select(p => p.Points.Count().ToString()).StringJoin("+");
+                var pieceCounts = Pieces.Select(p => p.Points.Count.ToString()).StringJoin("+");
                 throw new ArgumentException($"{Cuboid.CubieCount} grid cubies != {_pieceCubieCount} piece cubies ({pieceCounts})");
             }
         }
@@ -45,15 +48,15 @@ namespace PolycubeSolver
         private readonly int _pieceCount;
         private readonly int _constraintColumnCount;
 
-        public void CreateConstraintMatrix(IEnumerable<Piece> pieces)
+        public void CreateConstraintMatrix(Piece[] pieces)
         {
             var constraintRows = new List<bool[]>();
             var constraintPieces = new List<Piece>();
             var constraintOffsets = new List<Vector>();
 
-            for (int pieceIndex = 0; pieceIndex < pieces.Count(); pieceIndex++)
+            for (int pieceIndex = 0; pieceIndex < pieces.Length; pieceIndex++)
             {
-                var pieceRotations = Pieces[pieceIndex].GetRotations();
+                var pieceRotations = pieces[pieceIndex].GetRotations();
                 foreach (var rotatedPiece in pieceRotations)
                 {
                     var pieceLen = rotatedPiece.GetDimension();
@@ -116,24 +119,17 @@ namespace PolycubeSolver
         public char[,,] ParseNodeListSolution(int[] rowIds)
         {
             //todo: is there a better way?
-            var solutionRows = rowIds.Select(rowId => _constraintMatrix[rowId]).ToList();
-            var solutionPieces = rowIds.Select(rowId => _constraintPieces[rowId]).ToList();
-            var solutionOffsets = rowIds.Select(rowId => _constraintOffsets[rowId]).ToList();
 
             var grid = new char[Cuboid.Length.Y, Cuboid.Length.X, Cuboid.Length.Z];
-            var blockedChar = '-';
-            foreach (var point in Cuboid.BlockedPoints)
-            {
-                var (x, y, z) = point;
-                grid[y, x, z] = blockedChar;
-            }
+            foreach (var (x, y, z) in Cuboid.BlockedPoints)
+                grid[y, x, z] = _blockedChar;
 
-            for (int i = 0; i < solutionPieces.Count; i++)
+            for (int rowId = 0; rowId < rowIds.Length; rowId++)
             {
-                foreach (var point in solutionPieces[i].Points)
+                foreach (var point in _constraintPieces[rowId].Points)
                 {
-                    var (x, y, z) = point + solutionOffsets[i];
-                    grid[y, x, z] = solutionPieces[i].Name;
+                    var (x, y, z) = point + _constraintOffsets[rowId];
+                    grid[y, x, z] = _constraintPieces[rowId].Name;
                 }
             }
 
@@ -150,16 +146,13 @@ namespace PolycubeSolver
                 {
                     sb.Append($"{indent}[");
                     for (int z = 0; z < Cuboid.Length.Z; z++)
-                    {
                         sb.Append(grid[y, x, z]);
-                    }
 
                     sb.AppendLine("]");
                 }
             }
 
-            var result = sb.ToString();
-            return result;
+            return sb.ToString();
         }
     }
 }
