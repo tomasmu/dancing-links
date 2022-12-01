@@ -9,6 +9,4 @@ namespace ConsoleApp
             Console.WriteLine("hello world!");
         }
     }
-
-
 }

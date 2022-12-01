@@ -33,7 +33,7 @@ VV",
             polycube.Solve(100);
 
             //box can be in 2 places, S and V in 4
-            polycube.Solutions.Count().Should().Be(2 * 4);
+            polycube.Solutions.Count.Should().Be(2 * 4);
         }
 
         [Fact]
@@ -82,13 +82,13 @@ BB",
                 @"JJ",
             }.Select(str => new Piece(str));
 
-            var poly = new Polycube(cuboid, pieces);
-            poly.Solve(100);
+            var polycube = new Polycube(cuboid, pieces);
+            polycube.Solve(100);
 
             //B-piece in front (1 way): I,J can be IJ, JI, [IJ], [JI] = 1*4
             //B-piece in back (2 ways): I,J can be IJ, JI = 2*2
             //4+4=8
-            poly.Solutions.Count().Should().Be(8);
+            polycube.Solutions.Count.Should().Be(8);
         }
 
         [Fact]
@@ -96,6 +96,94 @@ BB",
         {
             var grid = new bool[3, 3, 3];
             var cuboid = new Cuboid(grid);
+            var pieces = GetSomaPieces();
+            var polycube = new Polycube(cuboid, pieces);
+            polycube.Solve(20000);
+
+            //soma cube has 240 unique solutions
+            //240*24*2 = 11520 in total
+            polycube.Solutions.Count.Should().Be(11520);
+        }
+
+        [Fact(
+            //Skip = "this test takes a few seconds to run"
+        )]
+        public void Solve_Wooden_puzzle()
+        {
+            var grid = new bool[3, 3, 3];
+            var pieces = GetWoodenPieces();
+            var cuboid = new Cuboid(grid);
+            var polycube = new Polycube(cuboid, pieces);
+
+            polycube.Solve(330000);
+
+            polycube.Solutions.Count.Should().Be(324864);
+        }
+
+        [Fact]
+        public void Solve_Wooden_puzzle_Another_shape()
+        {
+            var grid = @"
+...
+...
+...
+
+...
+.-.
+...
+
+...
+...
+...
+
+---
+-.-
+---";
+            var pieces = GetWoodenPieces();
+            var cuboid = new Cuboid(grid);
+            var polycube = new Polycube(cuboid, pieces);
+
+            polycube.Solve(400000);
+
+            polycube.Solutions.Count.Should().BeGreaterThanOrEqualTo(1);
+        }
+
+        [Fact(
+            Skip = "this test takes an hour to run"
+        )]
+        public void Solve_Bedlam_cube()
+        {
+            var grid = new bool[4, 4, 4];
+            var pieces = GetBedlamPieces();
+            var cuboid = new Cuboid(grid);
+            var polycube = new Polycube(cuboid, pieces);
+
+            polycube.Solve(470000);
+            //test run:
+            //solutions: 460464
+            //elapsed time: 45m
+            polycube.Solutions.Count.Should().Be(24 * 19186);
+        }
+
+        [Fact(
+            Skip = "this test takes two hours to run"
+        )]
+        public void Solve_Tetris_cube()
+        {
+            var grid = new bool[4, 4, 4];
+            var pieces = GetTetrisCubePieces();
+            var cuboid = new Cuboid(grid);
+            var polycube = new Polycube(cuboid, pieces);
+
+            polycube.Solve(240000);
+            //test run:
+            //solutions: 236136
+            //elapsed time: 1h 50m
+            polycube.Solutions.Count.Should().Be(24 * 9839);
+        }
+
+        public static IEnumerable<Piece> GetSomaPieces()
+        {
             var pieces = new string[]
             {
 @"
@@ -126,21 +214,11 @@ P
 
 P",
             }.Select(str => new Piece(str));
-
-            var polycube = new Polycube(cuboid, pieces);
-            polycube.Solve(20000);
-
-            //soma cube has 240 unique solutions
-            //240*24*2 = 11520 in total
-            polycube.Solutions.Count().Should().Be(11520);
+            return pieces;
         }
 
-        [Fact(
-            //Skip = "this test takes a few seconds to run"
-        )]
-        public void Solve_Wooden_puzzle()
+        public static IEnumerable<Piece> GetWoodenPieces()
         {
-            var grid = new bool[3, 3, 3];
             var pieces = new string[]
             {
                 @"
@@ -165,72 +243,11 @@ TTT
 ZZ
 -ZZ"
             }.Select(str => new Piece(str));
-            var cuboid = new Cuboid(grid);
-            var polycube = new Polycube(cuboid, pieces);
-
-            polycube.Solve(330000);
-
-            //24 rotations * 4! L permutations * 564?
-            polycube.Solutions.Count().Should().Be(324864);
+            return pieces;
         }
 
-        [Fact]
-        public void Solve_Wooden_puzzle_Another_shape()
+        public static IEnumerable<Piece> GetBedlamPieces()
         {
-            var grid = @"
-...
-...
-...
-
-...
-.-.
-...
-
-...
-...
-...
-
----
--.-
----";
-            var pieces = new string[]
-            {
-                @"
-111
-1",
-                @"
-222
-2",
-                @"
-333
-3",
-                @"
-444
-4",
-                @"
-V
-VV",
-                @"
-TTT
--T-",
-                @"
-ZZ
--ZZ"
-            }.Select(str => new Piece(str));
-            var cuboid = new Cuboid(grid);
-            var polycube = new Polycube(cuboid, pieces);
-
-            polycube.Solve(400000);
-
-            polycube.Solutions.Count().Should().BeGreaterThanOrEqualTo(1);
-        }
-
-        [Fact(
-            Skip = "this test takes an hour to run"
-        )]
-        public void Solve_Bedlam_cube()
-        {
-            var grid = new bool[4, 4, 4];
             var pieces = new string[]
             {
 @"
@@ -325,41 +342,11 @@ MM
 -
 -M"
             }.Select(str => new Piece(str));
-            var cuboid = new Cuboid(grid);
-            var polycube = new Polycube(cuboid, pieces);
-
-            polycube.Solve(470000);
-
-            /*
-first solution:
-[ABDD]
-[BBBD]
-[IBMM]
-[IKKM]
- [AAAC]
- [GGFD]
- [KKMD]
- [IKLL]
-  [GACC]
-  [GFFE]
-  [GJFL]
-  [IIHL]
-   [JCCE]
-   [JFEE]
-   [JJHE]
-   [HHHL]
-solutions: 460464
-elapsed time: 50 minutes
-            */
-            polycube.Solutions.Count().Should().Be(24 * 19186);
+            return pieces;
         }
 
-        [Fact(
-            Skip = "this test takes two hours to run"
-        )]
-        public void Solve_Tetris_cube()
+        public static IEnumerable<Piece> GetTetrisCubePieces()
         {
-            var grid = new bool[4, 4, 4];
             var pieces = new string[]
             {
 @"
@@ -445,32 +432,7 @@ LLL
 -L
 -L"
             }.Select(str => new Piece(str));
-            var cuboid = new Cuboid(grid);
-            var polycube = new Polycube(cuboid, pieces);
-
-            polycube.Solve(240000);
-            /*
-first solution:
-[AAAB]
-[JJAH]
-[KKAE]
-[DDDE]
- [AJJB]
- [KJHH]
- [KEEE]
- [KLDD]
-  [IBBB]
-  [ICBH]
-  [ILEF]
-  [LLLF]
-   [IICC]
-   [GCCH]
-   [GLFF]
-   [GGGF]
-solutions: 236136
-elapsed time: 2 hours 10 minutes
-            */
-            polycube.Solutions.Count().Should().Be(24 * 9839);
+            return pieces;
         }
 
         [Fact]
