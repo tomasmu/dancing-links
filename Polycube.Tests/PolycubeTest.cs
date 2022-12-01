@@ -37,6 +37,33 @@ VV",
         }
 
         [Fact]
+        public void Solve_Simple_OptionalPieces()
+        {
+            var grid = new bool[1, 2, 3];
+            var cuboid = new Cuboid(grid);
+            var pieces = new string[]
+            {
+@"
+V
+VV",
+@"S",
+            }.Select(str => new Piece(str));
+
+            var optionalPieces = new string[]
+            {
+@"OO",
+@"
+0
+0",
+            }.Select(str => new Piece(str));
+
+            var polycube = new Polycube(cuboid, pieces, optionalPieces);
+            polycube.Solve(100);
+
+            polycube.Solutions.Count.Should().BeGreaterThan(0);
+        }
+
+        [Fact]
         public void Solve_Simple_WithBlockedCubies()
         {
             var grid = new bool[2, 2, 3];
@@ -444,6 +471,63 @@ solutions: 236136
 elapsed time: 2 hours 10 minutes
             */
             polycube.Solutions.Count().Should().Be(24 * 9839);
+        }
+
+        [Fact]
+        public void Solve_Wooden_puzzle_variation()
+        {
+            var grid = @"
+...
+---
+...
+
+...
+---
+...
+
+...
+---
+...
+
+...
+---
+...
+
+--.
+--.
+--.
+";
+
+            var pieces = new string[]
+            {
+                @"
+111
+1",
+                @"
+222
+2",
+                @"
+333
+3",
+                @"
+444
+4",
+                @"
+V
+VV",
+                @"
+TTT
+-T-",
+                @"
+ZZ
+-ZZ"
+            }.Select(str => new Piece(str));
+            var cuboid = new Cuboid(grid);
+            var polycube = new Polycube(cuboid, pieces);
+
+            polycube.Solve(900);
+
+            polycube.Solutions.Count.Should().Be(864);
         }
     }
 }

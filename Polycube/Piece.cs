@@ -54,10 +54,13 @@ namespace PolycubeSolver
         public Vector GetDimension()
         {
             //todo: works when min is (0,0,0), which is how i use it
-            //should perhaps be max-min?
+            //should perhaps be max-min+1?
             var max = Points.GetAxesMaxValues();
             return max + 1;
         }
+
+        public Piece Translate(Vector offset) =>
+            new(Points.Select(p => p + offset), Name);
 
         private string PointsToString(IEnumerable<Vector> points)
         {

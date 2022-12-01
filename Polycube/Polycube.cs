@@ -1,11 +1,8 @@
 ﻿using DancingLinks;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace PolycubeSolver
 {
@@ -13,63 +10,89 @@ namespace PolycubeSolver
     {
         public Cuboid Cuboid { get; }
         public Piece[] Pieces { get; }
+        public Piece[] Optional { get; }
 
-        public Polycube(Cuboid cuboid, IEnumerable<Piece> pieces)
+        public Polycube(Cuboid cuboid, IEnumerable<Piece> pieces, IEnumerable<Piece> optional = null)
         {
             Cuboid = cuboid;
             Pieces = pieces.ToArray();
+            Optional = optional?.ToArray() ?? Array.Empty<Piece>();
 
             _pieceCubieCount = pieces.Sum(p => p.Points.Count());
+            _optionalCubieCount = optional?.Sum(p => p.Points.Count()) ?? 0;
             ThrowIfExactCoverIsImpossible();
 
             _pieceCount = pieces.Count();
 
             _constraintColumnCount = _pieceCount + Cuboid.CubieCount;
 
-            CreateConstraintMatrix(pieces);
+            CreateConstraintMatrix(Pieces, Optional);
         }
 
         public void ThrowIfExactCoverIsImpossible()
         {
-            if (Cuboid.CubieCount != _pieceCubieCount)
+            var pieceCounts = Pieces.Select(p => p.Points.Count().ToString()).StringJoin("+");
+            if (_optionalCubieCount == 0)
             {
-                var pieceCounts = Pieces.Select(p => p.Points.Count().ToString()).StringJoin("+");
-                throw new ArgumentException($"{Cuboid.CubieCount} grid cubies != {_pieceCubieCount} piece cubies ({pieceCounts})");
+                if (Cuboid.CubieCount != _pieceCubieCount)
+                {
+                    throw new ArgumentException(
+                        $"{Cuboid.CubieCount} grid cubies != {_pieceCubieCount} piece cubies ({pieceCounts})");
+                }
             }
+            else
+            {
+                var optionalCounts = Optional.Select(p => p.Points.Count().ToString()).StringJoin("+");
+                if (Cuboid.CubieCount > _pieceCubieCount + _optionalCubieCount)
+                {
+                    throw new ArgumentException(
+                        $"{Cuboid.CubieCount} grid cubies < {_pieceCubieCount} piece cubies ({pieceCounts})" +
+                        $" + {_optionalCubieCount} optional cubies ({optionalCounts})");
+                }
+            }
+
         }
 
         private bool[][] _constraintMatrix;
-        private List<Piece> _constraintPieces;
-        private List<Vector> _constraintOffsets;
+        private List<Piece> _constraintPiecesWithOffset;
         private readonly int _pieceCubieCount;
+        private readonly int _optionalCubieCount;
         private readonly int _pieceCount;
         private readonly int _constraintColumnCount;
 
-        public void CreateConstraintMatrix(IEnumerable<Piece> pieces)
+        public void CreateConstraintMatrix(Piece[] pieces, Piece[] optional)
+        {
+            var (constraints, piecesWithOffset) = CreateConstraintRows(pieces, false);
+            var (constraintsOptional, optionalWithOffset) = CreateConstraintRows(optional, true);
+
+            _constraintMatrix = constraints.Concat(constraintsOptional).ToArray();
+            _constraintPiecesWithOffset = piecesWithOffset.Concat(optionalWithOffset).ToList();
+        }
+
+        public (IEnumerable<bool[]> constraintRows, IEnumerable<Piece> piecesWithOffset) CreateConstraintRows(Piece[] pieces, bool isOptional)
         {
             var constraintRows = new List<bool[]>();
-            var constraintPieces = new List<Piece>();
-            var constraintOffsets = new List<Vector>();
+            var constraintPiecesWithOffset = new List<Piece>();
 
-            for (int pieceIndex = 0; pieceIndex < pieces.Count(); pieceIndex++)
+            for (int pieceIndex = 0; pieceIndex < pieces.Length; pieceIndex++)
             {
-                var pieceRotations = Pieces[pieceIndex].GetRotations();
+                var pieceRotations = pieces[pieceIndex].GetRotations();
                 foreach (var rotatedPiece in pieceRotations)
                 {
-                    var pieceLen = rotatedPiece.GetDimension();
-                    for (int yGrid = 0; yGrid <= Cuboid.Length.Y - pieceLen.Y; yGrid++)
+                    var pieceLength = rotatedPiece.GetDimension();
+                    for (int yGrid = 0; yGrid <= Cuboid.Length.Y - pieceLength.Y; yGrid++)
                     {
-                        for (int xGrid = 0; xGrid <= Cuboid.Length.X - pieceLen.X; xGrid++)
+                        for (int xGrid = 0; xGrid <= Cuboid.Length.X - pieceLength.X; xGrid++)
                         {
-                            for (int zGrid = 0; zGrid <= Cuboid.Length.Z - pieceLen.Z; zGrid++)
+                            for (int zGrid = 0; zGrid <= Cuboid.Length.Z - pieceLength.Z; zGrid++)
                             {
                                 var fromPoint = new Vector(xGrid, yGrid, zGrid);
-                                var constraintRow = CreateConstraintRow(pieceIndex, rotatedPiece, fromPoint);
+                                var pieceWithOffset = rotatedPiece.Translate(fromPoint);
+                                var constraintRow = CreateConstraintRow(pieceIndex, pieceWithOffset, isOptional);
                                 if (constraintRow != null)
                                 {
                                     constraintRows.Add(constraintRow);
-                                    constraintPieces.Add(rotatedPiece);
-                                    constraintOffsets.Add(fromPoint);
+                                    constraintPiecesWithOffset.Add(pieceWithOffset);
                                 }
                             }
                         }
@@ -77,22 +100,19 @@ namespace PolycubeSolver
                 }
             }
 
-            _constraintMatrix = constraintRows.ToArray();
-            _constraintPieces = constraintPieces;
-            _constraintOffsets = constraintOffsets;
+            return (constraintRows, constraintPiecesWithOffset);
         }
 
-        private bool[] CreateConstraintRow(int pieceIndex, Piece piece, Vector fromPoint)
+        private bool[] CreateConstraintRow(int pieceIndex, Piece piece, bool isOptional = false)
         {
             var constraintRow = new bool[_constraintColumnCount];
-            constraintRow[pieceIndex] = true;
+            constraintRow[pieceIndex] = !isOptional;
             foreach (var point in piece.Points)
             {
-                var p = fromPoint + point;
-                if (Cuboid[p.Y, p.X, p.Z])
+                if (Cuboid[point.Y, point.X, point.Z])
                     return null;
 
-                var constraintColumn = Cuboid.GetMapped(p);
+                var constraintColumn = Cuboid.GetMapped(point);
                 constraintRow[_pieceCount + constraintColumn] = true;
             }
 
@@ -115,27 +135,16 @@ namespace PolycubeSolver
 
         public char[,,] ParseNodeListSolution(int[] rowIds)
         {
-            //todo: is there a better way?
-            var solutionRows = rowIds.Select(rowId => _constraintMatrix[rowId]).ToList();
-            var solutionPieces = rowIds.Select(rowId => _constraintPieces[rowId]).ToList();
-            var solutionOffsets = rowIds.Select(rowId => _constraintOffsets[rowId]).ToList();
-
-            var grid = new char[Cuboid.Length.Y, Cuboid.Length.X, Cuboid.Length.Z];
             var blockedChar = '-';
-            foreach (var point in Cuboid.BlockedPoints)
-            {
-                var (x, y, z) = point;
+            
+            var grid = new char[Cuboid.Length.Y, Cuboid.Length.X, Cuboid.Length.Z];
+            foreach (var (x, y, z) in Cuboid.BlockedPoints)
                 grid[y, x, z] = blockedChar;
-            }
 
-            for (int i = 0; i < solutionPieces.Count; i++)
-            {
-                foreach (var point in solutionPieces[i].Points)
-                {
-                    var (x, y, z) = point + solutionOffsets[i];
-                    grid[y, x, z] = solutionPieces[i].Name;
-                }
-            }
+            var solutionPiecesWithOffset = rowIds.Select(rowId => _constraintPiecesWithOffset[rowId]).ToList();
+            foreach (var piece in solutionPiecesWithOffset)
+                foreach (var (x, y, z) in piece.Points)
+                    grid[y, x, z] = piece.Name;
 
             return grid;
         }
@@ -150,9 +159,7 @@ namespace PolycubeSolver
                 {
                     sb.Append($"{indent}[");
                     for (int z = 0; z < Cuboid.Length.Z; z++)
-                    {
                         sb.Append(grid[y, x, z]);
-                    }
 
                     sb.AppendLine("]");
                 }
